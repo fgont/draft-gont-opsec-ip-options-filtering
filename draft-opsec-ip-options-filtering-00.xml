@@ -1,0 +1,2747 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+    <!-- try to enforce the ID-nits conventions and DTD validity -->
+<?rfc strict="no" ?>    <!-- items used when reviewing the document -->
+<?rfc comments="no" ?>  <!-- controls display of <cref> elements -->
+<?rfc inline="no" ?>    <!-- when no, put comments at end in comments section,
+                                otherwise, put inline -->
+<?rfc editing="no" ?>   <!-- when yes, insert editing marks -->
+
+    <!-- create table of contents (set it options).
+           Note the table of contents may be omitted
+         for very short documents -->
+
+<?rfc toc="yes"?><?rfc tocompact="yes"?>
+<?rfc tocdepth="4"?>
+
+    <!-- choose the options for the references. Some like
+         symbolic tags in the references (and citations)
+         and others prefer numbers. --> 
+<?rfc symrefs="yes"?><?rfc sortrefs="yes" ?>
+    <!-- these two save paper: start new paragraphs from the same page etc. -->
+<?rfc compact="yes" ?><?rfc subcompact="no" ?>
+<!-- end of list of processing instructions -->
+    <!-- Information about the document.
+         categories values: std, bcp, info, exp, and historic
+         For Internet-Drafts, specify attribute "ipr".
+         (ipr values are: full3667, noModification3667, noDerivatives3667),
+         Also for Internet-Drafts, can specify values for
+         attributes "iprExtract", and "docName".  Note
+         that the value for iprExtract is the anchor attribute
+         value of a section that can be extracted, and is only
+         useful when the value of "ipr" is not "full3667". -->
+    <!-- TODO: verify which attributes are specified only
+            by the RFC editor.  It appears that attributes
+            "number", "obsoletes", "updates", and "seriesNo"
+            are specified by the RFC editor (and not by
+            the document author). -->
+
+<rfc    
+    category="info"
+    ipr="trust200811"
+    docName="draft-ietf-opsec-ip-security-03.txt" >
+
+<front>
+    <title abbrev="IPv4 Security Assessment">Security Assessment of the Internet Protocol version 4</title>
+
+    <!-- add 'role="editor"' below for the editors if appropriate -->    
+
+<author
+        fullname="Fernando Gont"
+        initials="F.G."
+        surname="Gont">
+    <!-- abbrev not needed but can be used for the header
+         if the full organization name is too long -->
+        <organization abbrev="UK CPNI">UK Centre for the Protection of National Infrastructure</organization>
+        <address>
+            <email>fernando@gont.com.ar</email>
+		<uri>http://www.cpni.gov.uk</uri>
+        <!--            If I had a phone, fax machine, and a URI, I could add the following: --->
+
+        </address>
+</author>
+
+
+<date year="2010" month="February"/> 
+<!-- month="May" is no longer necessary note also, day="30" is optional -->
+    <area>Internet</area>    <!-- WG name at the upperleft corner of the doc,
+         IETF fine for individual submissions -->
+    <workgroup>Operational Security Capabilities for IP Network Infrastructure (opsec)</workgroup>
+
+<abstract>
+<t>
+This document contains a security assessment of the IETF specifications of the Internet Protocol version 4, and of a number of mechanisms and policies in use by popular IPv4 implementations. It is based on the results of a project carried out by the UK's Centre for the Protection of National Infrastructure (CPNI).
+</t>
+</abstract>
+
+</front>
+
+<middle>
+
+<section title="Preface">
+<section title="Introduction">
+<t>
+The TCP/IP protocols were conceived in an environment that was quite different from the hostile environment they currently operate in. However, the effectiveness of the protocols led to their early adoption in production environments, to the point that, to some extent, the current world's economy depends on them.
+</t>
+<t>
+While many textbooks and articles have created the myth that the Internet protocols were designed for warfare environments, the top level goal for the DARPA Internet Program was the sharing of large service machines on the ARPANET <xref target="Clark1988"/>. As a result, many protocol specifications focus only on the operational aspects of the protocols they specify, and overlook their security implications.</t>
+
+<t>
+While the Internet technology evolved since its inception, the Internet's building blocks are basically the same core protocols adopted by the ARPANET more than two decades ago. During the last twenty years, many vulnerabilities have been identified in the TCP/IP stacks of a number of systems. Some of them were based on flaws in some protocol implementations, affecting only a reduced number of systems, while others were based on flaws in the protocols themselves, affecting virtually every existing implementation <xref target="Bellovin1989"/>. Even in the last couple of years, researchers were still working on security problems in the core protocols <xref target="I-D.ietf-tcpm-icmp-attacks"/> <xref target="Watson2004"/> <xref target="NISCC2004"/> <xref target="NISCC2005"/>.</t>
+<t>
+The discovery of vulnerabilities in the TCP/IP protocols led to reports being published by a number of CSIRTs (Computer Security Incident Response Teams) and vendors, which helped to raise awareness about the threats and the best mitigations known at the time the reports were published. Unfortunately, this also led to the documentation of the discovered protocol vulnerabilities being spread among a large number of documents, which are sometimes difficult to identify.</t>
+<t>
+For some reason, much of the effort of the security community on the Internet protocols did not result in official documents (RFCs) being issued by the IETF (Internet Engineering Task Force). This basically led to a situation in which "known" security problems have not always been addressed by all vendors. In addition, in many cases vendors have implemented quick "fixes" to protocol flaws without a careful analysis of their effectiveness and their impact on interoperability <xref target="Silbersack2005"/>.</t>
+<t>
+The lack of adoption of these fixes by the IETF means that any system built in the future according to the official TCP/IP specifications will reincarnate security flaws that have already hit our communication systems in the past.</t>
+<t>
+Producing a secure TCP/IP implementation nowadays is a very difficult task, in part because of the lack of a single document that serves as a security roadmap for the protocols. Implementers are faced with the hard task of identifying relevant documentation and differentiate between that which provides correct advisory, and that which provides misleading advisory based on inaccurate or wrong assumptions.</t>
+<t>
+There is a clear need for a companion document to the IETF specifications that discusses the security aspects and implications of the protocols, identifies the possible threats, discusses the possible counter-measures, and analyzes their respective effectiveness.</t>
+<t>
+This document is the result of an assessment of the IETF specifications of the Internet Protocol (IP), from a security point of view. Possible threats were identified and, where possible, counter-measures were proposed. Additionally, many implementation flaws that have led to security vulnerabilities have been referenced in the hope that future implementations will not incur the same problems. Furthermore, this document does not limit itself to performing a security assessment of the relevant IETF specifications, but also provides an assessment of common implementation strategies found in the real world.</t>
+<t>
+This document does not aim to be the final word on the security of the Internet Protocol (IP). On the contrary, it aims to raise awareness about many security threats based on the IP protocol that have been faced in the past, those that we are currently facing, and those we may still have to deal with in the future. It provides advice for the secure implementation of the Internet Protocol (IP), but also provides insights about the security aspects of the Internet Protocol that may be of help to the Internet operations community.</t>
+<t>
+Feedback from the community is more than encouraged to help this document be as accurate as possible and to keep it updated as new threats are discovered.
+</t>
+<t>This document is heavily based on the "Security Assessment of the Internet Protocol" <xref target="CPNI2008"/> released by the UK Centre for the Protection of National Infrastructure (CPNI), available at: http://www.cpni.gov.uk/Products/technicalnotes/3677.aspx .</t>
+</section>
+<section title="Scope of this document">
+<t>
+While there are a number of protocols that affect the way in which IP systems operate, this document focuses only on the specifications of the Internet Protocol (IP). For example, routing and bootstrapping protocols are considered out of the scope of this project.</t>
+<t>
+The following IETF RFCs were selected for assessment as part of this work:</t>
+
+<t>
+<list style="symbols">
+<t>RFC 791, &quot;Internet Protocol. DARPA Internet Program. Protocol Specification&quot; (51 pages). </t>
+<t>RFC 815, &quot;IP datagram reassembly algorithms&quot; (9 pages). </t>
+<t>RFC 919, &quot;BROADCASTING INTERNET DATAGRAMS&quot; (8 pages).</t>
+<t>RFC 950, &quot;Internet Standard Subnetting Procedure&quot; (18 pages)</t>
+<t>RFC 1112, &quot;Host Extensions for IP Multicasting&quot; (17 pages)</t>
+<t>RFC 1122, &quot;Requirements for Internet Hosts -- Communication Layers&quot; (116 pages).</t>
+<t>RFC 1812, &quot;Requirements for IP Version 4 Routers&quot; (175 pages).</t>
+<t>RFC 2474, &quot;Definition of the Differentiated Services Field (DS Field) in the IPv4 and IPv6 Headers&quot; (20 pages).</t>
+<t>RFC 2475, &quot;An Architecture for Differentiated Services&quot; (36 pages).</t>
+<t>RFC 3168, &quot;The Addition of Explicit Congestion Notification (ECN) to IP&quot; (63 pages).</t>
+<t>RFC 4632, &quot;Classless Inter-domain Routing (CIDR): The Internet Address Assignment and Aggregation Plan&quot; (27 pages).</t>
+</list>
+</t>
+</section>
+
+<section title="Organization of this document">
+<t>
+This document is basically organized in two parts: "Internet Protocol header fields" and "Internet Protocol mechanisms". The former contains an analysis of each of the fields of the Internet Protocol header, identifies their security implications, and discusses the possible counter-measures. The latter contains an analysis of the security implications of the mechanisms implemented by the Internet Protocol.</t>
+</section>
+
+</section>
+
+
+<section title="The Internet Protocol">
+<t>
+The Internet Protocol (IP) provides a basic data transfer function for passing data blocks called "datagrams" from a source host to a destination host, across the possible intervening networks. Additionally, it provides some functions that are useful for the interconnection of heterogeneous networks, such as fragmentation and reassembly.</t>
+<t>
+The "datagram" has a number of characteristics that makes it convenient for interconnecting systems <xref target="Clark1988"/>:</t>
+<t>
+<list style="symbols">
+<t>It eliminates the need of connection state within the network, which improves the survivability characteristics of the network.</t>
+<t>It provides a basic service of data transport that can be used as a building block for other transport services (reliable data transport services, etc.).</t>
+<t>It represents the minimum network service assumption, which enables IP to be run over virtually any network technology.</t>
+</list>
+</t>
+</section>
+
+<section title="Internet Protocol Header Fields">
+
+<t>The IETF specifications of the Internet Protocol define the syntax of the protocol header, along with the semantics of each of its fields. Figure 1 shows the format of an IP datagram. </t>
+
+<t>
+<figure title="Internet Protocol header format" anchor="ipheader">
+<artwork align="center">
+ 0                   1                   2                   3   
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|Version|  IHL  |Type of Service|          Total Length         |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|         Identification        |Flags|      Fragment Offset    |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Time to Live |    Protocol   |         Header Checksum       |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                       Source Address                          |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Destination Address                        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Options                    |    Padding    |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</artwork>
+<postamble></postamble>
+</figure>
+</t>
+
+<t>Even when the minimum IP header size is 20 bytes, an IP module might be handed an (illegitimate) "datagram" of less than 20 bytes. Therefore, before doing any processing of the IP header fields, the following check should be performed by the IP module on the packets handed by the link layer:</t>
+
+<t>
+<artwork align="center">
+LinkLayer.PayloadSize &gt;= 20
+</artwork>
+</t>
+
+<t>where LinkLayer.PayloadSize is the length (in octets) of the datagram passed from the link layer to the IP layer.</t>
+<t>If the packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented reflecting the packet drop).</t>
+
+<t>The following subsections contain further sanity checks that should be performed on IP packets.</t>
+
+
+
+
+<section title="Version">
+
+<t>This is a 4-bit field that indicates the version of the Internet Protocol (IP), and thus the syntax of the packet. For IPv4, this field must be 4.</t>
+
+<t>When a Link-Layer protocol de-multiplexes a packet to an internet module, it does so based on a "Protocol Type" field in the data-link packet header.</t>
+
+<t>In theory, different versions of IP could coexist on a network by using the same "Protocol Type" at the Link-layer, but a different value in the Version field of the IP header. Thus, a single IP module could handle all versions of the Internet Protocol, differentiating them by means of this field. </t>
+
+<t>However, in practice different versions of IP are identified by a different "Protocol Type" number in the link-layer protocol header. For example, IPv4 datagrams are encapsulated in Ethernet frames using a "Protocol Type" field of 0x0800, while IPv6 datagrams are encapsulated in Ethernet frames using a "Protocol Type" field of 0x86DD <xref target="IANA2006a"/>.</t>
+
+<t>Therefore, if an IPv4 module receives a packet, the Version field must be checked to be 4. If this check fails, the packet should be silently dropped, and this event should be logged (e.g., a counter could be incremented reflecting the packet drop).</t>
+</section>
+
+<section title="IHL (Internet Header Length)">
+<t>
+The IHL (Internet Header Length) indicates the length of the internet header in 32-bit words (4 bytes). As the minimum datagram size is 20 bytes, the minimum legal value for this field is 5. Therefore, the following check should be enforced:</t>
+
+<t>
+<artwork align="center">
+IHL &gt;= 5
+</artwork>
+</t>
+
+<t>If the packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented reflecting the packet drop).</t>
+
+<t>For obvious reasons, the Internet header cannot be larger than the whole Internet datagram it is part of. Therefore, the following check should be enforced:</t>
+
+<t>
+<artwork align="center">
+IHL * 4 &lt;= Total Length
+</artwork>
+</t>
+
+<t>
+<list style="hanging">
+<t>This needs to refer to the size of the datagram as specified by the sender in the Total Lenght field, since link layers might have added some padding (see <xref target="total-length"/>).</t>
+</list>
+</t>
+
+<t>If the packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented reflecting the packet drop).</t>
+
+<t>The above check allows for Internet datagrams with no data bytes in the payload that, while nonsensical for virtually every protocol that runs over IP, are is still legal.</t>
+</section>
+
+<section title="Type of Service">
+<section title="Original Interpretation" anchor="TOS-discussion">
+
+<t>Figure 2 shows the original syntax of the Type of Service field, as defined by RFC 791 <xref target="RFC0791"/>, and updated by RFC 1349 <xref target="RFC1349"/>. This definition has been superseded long ago (see <xref target="diffserv"/> and <xref target="ecn"/>), but it is still assumed by some deployed implementations.</t>
+
+
+<t>
+<figure title="Type of Service field" align="center" anchor="TOS">
+<artwork>
+   0     1     2     3     4     5     6     7
++-----+-----+-----+-----+-----+-----+-----+-----+
+|   PRECEDENCE    |  D  |  T  |  R  |  C  |  0  |
++-----+-----+-----+-----+-----+-----+-----+-----+
+</artwork>
+<postamble></postamble>
+</figure>
+</t>
+
+<texttable title="TOS bits" style="all" anchor="TOSbits">
+
+        <ttcol align="left">Bits 0-2</ttcol>
+        <ttcol align="center">Precedence</ttcol>
+        <c>Bit 3</c>
+        <c>0 = Normal Delay, 1 = Low Delay</c>
+        <c>Bit 4</c>
+        <c>0 = Normal Throughput, 1 = High Throughput</c>
+        <c>Bit 5</c>
+        <c>0 = Normal Reliability, 1 = High Reliability</c>
+        <c>Bit 6</c>
+        <c>0 = Normal Cost, 1 = Minimize Monetary Cost</c>
+        <c>Bits 7</c>
+        <c>Reserved for Future Use (must be zero)</c>
+
+    </texttable>
+
+<texttable title="Precedence field" style="all" anchor="Precedence">
+
+        <ttcol align="left">111</ttcol>
+        <ttcol align="center">Network Control</ttcol>
+        <c>110</c>
+        <c>Internetwork</c>
+        <c>101</c>
+        <c>CRITIC/ECP</c>
+        <c>100</c>
+        <c>Flash Override</c>
+        <c>011</c>
+        <c>Flash</c>
+        <c>010</c>
+        <c>Immediate</c>
+        <c>001</c>
+        <c>Priority</c>
+        <c>000</c>
+        <c>Routine</c>
+    </texttable>
+
+<t>The Type of Service field can be used to affect the way in which the packet is treated by the systems of a network that process it. Section 4.2.1 ("Precedence-ordered queue service") and Section 4.2.3 ("Weak TOS") of this document describe the security implications of the Type of Service field in the forwarding of packets.</t>
+</section>
+
+
+<section title="Standard Interpretation" anchor="tos-standard">
+<section title="Differentiated Services field" anchor="diffserv">
+
+<t>The Differentiated Services Architecture is intended to enable scalable service discrimination in the Internet without the need for per-flow state and signaling at every hop <xref target="RFC2475"/>. RFC 2474 <xref target="RFC2474"/> redefined the IP &amp;Type of Service&amp; octet, introducing a Differentiated Services Field (DS Field. <xref target="dsfield"/> shows the format of the field.</t>
+
+<t>
+<figure title="Structure of the DS Field" align="center" anchor="dsfield">
+<artwork align="center">
+  0   1   2   3   4   5   6   7
++---+---+---+---+---+---+---+---+
+|         DSCP          |  CU   |
++---+---+---+---+---+---+---+---+
+</artwork>
+<postamble></postamble>
+</figure>
+</t>
+
+<t>The DSCP ("Differentiated Services CodePoint").is used to select the treatment the packet is to receive within the Differentiated Services Domain. The CU ("Currently Unused") field was, at the time the specification was issued, reserved for future use. The DSCP field is used to select a PHB, by matching against the entire 6-bit field. </t>
+
+<t>Considering that the DSCP field determines how a packet is treated within a DS domain, an attacker send packets with a forged DSCP field to perform a theft of service or even a Denial of Service attack. In particular, an attacker could forge packets with a codepoint of the type '11x000' which, according to Section 4.2.2.2 of RFC 2474 <xref target="RFC2474"/>, would give the packets preferential forwarding treatment when compared with the PHB selected by the codepoint '000000'. If strict priority queuing were utilized, a continuous stream of such pockets could perform a Denial of Service to other flows which have a DSCP of lower relative order.</t>
+
+<t>As the DS field is incompatible with the original Type of Service field, both DS domains and networks using the original Type of Service field should protect themselves by remarking the corresponding field where appropriate, probably deploying remarking boundary nodes. Nevertheless, care must be taken so that packets received with an unrecognized DSCP do not cause the handling system to malfunction.</t>
+</section>
+
+<section title="Explicit Congestion Notification (ECN)" anchor="ecn">
+
+<t>RFC 3168 <xref target="RFC3168"/> specifies a mechanism for routers to signal congestion to hosts sending IP packets, by marking the offending packets, rather than discarding them. RFC 3168 defines the ECN field, which utilizes the CU unused field of the DSCP field described in Section 3.14 of this document. <xref target="figure-ecn"/> shows the syntax of the ECN field, together with the DSCP field used for Differentiated Services.</t>
+
+<t>
+<figure title="The Differentiated Services and ECN fields in IP" align="center" anchor="figure-ecn">
+<artwork align="center">
+   0     1     2     3     4     5     6     7
++-----+-----+-----+-----+-----+-----+-----+-----+
+|          DS FIELD, DSCP           | ECN FIELD |
++-----+-----+-----+-----+-----+-----+-----+-----+
+</artwork>
+<postamble></postamble>
+</figure>
+</t>
+
+<t>As such, the ECN field defines four codepoints:</t>
+
+
+<texttable title="ECN codepoints" style="all" anchor="ecncodepoints">
+
+        <ttcol align="center">ECN field</ttcol>
+        <ttcol align="center">Codepoint</ttcol>
+        <c>00</c>
+        <c>Not-ECT</c>
+        <c>01</c>
+        <c>ECT(1)</c>
+        <c>10</c>
+        <c>ECT(0)</c>
+        <c>11</c>
+        <c>CE</c>
+    </texttable>
+
+<t>The security implications of ECN are discussed in detail in a number of Sections of RFC 3168. Of the possible threats discussed in the ECN specification, we believe that one that can be easily exploited is that of host falsely indicating ECN-Capability.</t>
+
+<t>An attacker could set the ECT codepoint in the packets it sends, to signal the network that the endpoints of the transport protocol are ECN-capable. Consequently, when experiencing moderate congestion, routers using active queue management based on RED would mark the packets (with the CE codepoint) rather than discard them. In the same scenario, packets of competing flows that do not have the ECT codepoint set would be dropped. Therefore, an attacker would get better network service than the competing flows.</t>
+
+<t>However, if this moderate congestion turned into heavy congestion, routers should switch to drop packets, regardless of whether the packets have the ECT codepoint set or not.</t>
+
+<t>A number of other threats could arise if an attacker was a man in the middle (i.e., was in the middle of the path the packets travel to get to the destination host). For a detailed discussion of those cases, we urge the reader to consult Section 16 of RFC 3168.</t>
+</section>
+</section>
+</section>
+
+
+<section title="Total Length" anchor="total-length">
+
+<t>The Total Length field is the length of the datagram, measured in bytes, including both the IP header and the IP payload. Being a 16-bit field, it allows for datagrams of up to 65535 bytes. RFC 791 <xref target="RFC0791"/> states that all hosts should be prepared to receive datagrams of up to 576 bytes (whether they arrive as a whole, or in fragments). However, most modern implementations can reassemble datagrams of at least 9 Kbytes.</t>
+
+<t>Usually, a host will not send to a remote peer an IP datagram larger than 576 bytes, unless it is explicitly signaled that the remote peer is able to receive such "large" datagrams (for example, by means of TCP's MSS option). However, systems should assume that they may be sent datagrams larger than 576 bytes, regardless of whether they signal their remote peers to do so or not. In fact, it is common for NFS <xref target="RFC3530"/>implementations to send datagrams larger than 576 bytes, even without explicit signaling that the destination system can receive such "large" datagram.</t>
+
+<t>
+<list style="hanging">
+<t>Additionally, see the discussion in Section 4.1 "Fragment reassembly" regarding the possible packet sizes resulting from fragment reassembly.</t>
+</list>
+</t>
+
+<t>Implementations should be aware that the IP module could be handed a packet larger than the value actually contained in the Total Length field. Such a difference usually has to do with legitimate padding bytes at the link-layer protocol, but it could also be the result of malicious activity by an attacker. Furthermore, even when the maximum length of an IP datagram is 65535 bytes, if the link-layer technology in use allows for payloads larger than 65535 bytes, an attacker could forge such a large link-layer packet, meaning it for the IP module. If the IP module of the receiving system were not prepared to handle such an oversized link-layer payload, an unexpected failure might occur. Therefore, the memory buffer used by the IP module to store the link-layer payload should be allocated according to the payload size reported by the link-layer, rather than according to the Total Length field of the IP packet it contains. </t>
+
+<t>The IP module could also be handed a packet that is smaller than the actual IP packet size claimed by the Total Length field. This could be used, for example, to produce an information leakage. Therefore, the following check should be performed:</t>
+
+<t>
+<artwork align="center">
+LinkLayer.PayloadSize &gt;= Total Length
+</artwork>
+</t>
+
+<t>If this check fails, the IP packet should be dropped, and this event should be logged (e.g., a counter could be incremented reflecting the packet drop). As the previous expression implies, the number of bytes passed by the link-layer to the IP module should contain at least as many bytes as claimed by the Total Length field of the IP header.</t>
+
+<t>
+<list style="hanging">
+<t><xref target="US-CERT2002"/> is an example of the exploitation of a forged IP Total Length field to produce an information leakage attack.</t>
+</list>
+</t>
+
+</section>
+
+<section title="Identification (ID)">
+
+<t>The Identification field is set by the sending host to aid in the reassembly of fragmented datagrams. At any time, it needs to be unique for each set of {Source Address, Destination Address, Protocol}.</t>
+
+<t>In many systems, the value used for this field is determined at the IP layer, on a protocol-independent basis. Many of those systems also simply increment the IP Identification field for each packet they send. </t>
+
+<t>This implementation strategy is inappropriate for a number of reasons. First, if the Identification field is set on a protocol-independent basis, it will wrap more often than necessary, and thus the implementation will be more prone to the problems discussed in <xref target="Kent1987"/> and <xref target="RFC4963"/>.</t>
+
+<t>Additionally, this implementation strategy opens the door to an information leakage that can be exploited in a number of ways. <xref target="Sanfilippo1998a"/> originally pointed out how this field could be examined to determine the packet rate at which a given system is transmitting information. Later, <xref target="Sanfilippo1998b"/> described how a system with such an implementation can be used to perform a stealth port scan to a third (victim) host. <xref target="Sanfilippo1999"/> explained how to exploit this implementation strategy to uncover the rules of a number of firewalls. <xref target="Bellovin2002"/> explains how the IP Identification field can be exploited to count the number of systems behind a NAT. <xref target="Fyodor2004"/> is an entire paper on most (if not all) the ways to exploit the information provided by the Identification field of the IP header.</t>
+
+<section title="Some workarounds implemented by the industry">
+
+<t>As the IP Identification field is only used for the reassembly of datagrams, some operating systems (such as Linux) decided to set this field to 0 in all packets that have the DF bit set. This would, in principle, avoid any type of information leakage. However, it was detected that some non-RFC-compliant middle-boxes fragmented packets even if they had the DF bit set. In such a scenario, all datagrams originally sent with the DF bit set would all result in fragments that would have an Identification field of 0, which would lead to problems ("collision" of the Identification number) in the reassembly process.</t>
+
+<t>Linux (and Solaris) later set the IP Identification field on a per-IP-address basis. This avoids some of the security implications of the IP Identification field, but not all. For example, systems behind a load balancer can still be counted.</t>
+</section>
+
+<section title="Possible security improvements">
+
+<t>Contrary to common wisdom, the IP Identification field does not need to be system-wide unique for each packet, but has to be unique for each {Source Address, Destination Address, Protocol} tuple. </t>
+
+<t>
+<list style="hanging">
+<t>For instance, the TCP specification defines a generic send() function which takes the IP ID as one of its arguments.</t>
+</list>
+</t>
+
+<t>We provide an analysis of the possible security improvements that could be implemented, based on whether the protocol using the services of IP is connection-oriented or connection-less.</t>
+
+<section title="Connection-oriented protocols">
+
+<t>To avoid the security implications of the information leakage described above, a pseudo-random number generator (PRNG) could be used to set the IP Identification field on a {Source Address, Destination Address} basis (for each connection-oriented transport protocol).</t>
+
+<t>
+<list style="hanging">
+<t><xref target="Klein2007"/> is a security advisory that describes a weakness in the pseudo random number generator (PRNG) in use for the generation of the IP Identification by a number of operating systems.</t>
+</list>
+</t>
+
+<t>While in theory a pseudo-random number generator could lead to scenarios in which a given Identification number is used more than once in the same time-span for datagrams that end up getting fragmented (with the corresponding potential reassembly problems), in practice this is unlikely to cause trouble. </t>
+
+<t>By default, most implementations of connection-oriented protocols, such as TCP, implement some mechanism for avoiding fragmentation (such as the Path-MTU Discovery mechanism described in <xref target="RFC1191"/>). Thus, fragmentation will only take place sporadically, when a non-RFC-compliant middle-box is placed somewhere along the path that the packets travel to get to the destination host. Once the sending system is signaled by the middle-box that it should reduce the size of the packets it sends, fragmentation would be avoided. Also, for reassembly problems to arise, the same Identification field should be reused very frequently, and either strong packet reordering or packet loss should take place. </t>
+
+<t>Nevertheless, regardless of what policy is used for selecting the Identification field, with the current link speeds fragmentation is already bad enough to rely on it. A mechanism for avoiding fragmentation (such as <xref target="RFC1191"/> or <xref target="RFC4821"/> should be implemented, instead.</t>
+</section>
+
+<section title="Connectionless protocols">
+
+<t>Connectionless protocols usually have these characteristics:</t>
+
+<t>
+<list style="symbols">
+<t>lack of flow-control mechanisms,</t>
+<t>lack of packet sequencing mechanisms, and,</t>
+<t>lack of reliability mechanisms (such as "timeout and retransmit").</t>
+</list>
+</t>
+
+<t>This basically means that the scenarios and/or applications for which connection-less transport protocols are used assume that:</t>
+
+<t>
+<list style="symbols">
+<t>Applications will be used in environments in which packet reordering is very unlikely (such as Local Area Networks), as the transport protocol itself does not provide data sequencing. </t>
+<t>The data transfer rates will be low enough that flow control will be unnecessary.</t>
+<t>Packet loss is not important and probably also unlikely.</t>
+</list>
+</t>
+
+<t>With these assumptions in mind, the Identification field could still be set according to a pseudo-random number generator (PRNG). In the event a given Identification number was reused while the first instance of the same number is still on the network, the first IP datagram would be reassembled before the fragments of the second IP datagram get to their destination. </t>
+
+<t>In the event this was not the case, the reassembly of fragments would result in a corrupt datagram. While some existing work <xref target="Silbersack2005"/> assumes that this error would be caught by some upper-layer error detection code, the error detection code in question (such as UDP's checksum) might be intended to detect single bit errors, rather than data corruption arising from the replacement of a complete data block (as is the case in corruption arising from collision of IP Identification numbers). </t>
+
+<t>
+<list style="hanging">
+<t>In the case of UDP, unfortunately some systems have been known to not enable the UDP checksum by default. For most applications, packets containing errors should be dropped. Probably the only application that may benefit from disabling the checksum is streaming media, to avoid dropping a complete sample for a single-bit error. </t>
+</list>
+</t>
+
+<t>In general, if IP Identification number collisions become an issue for the application using the connection-less protocol, then use of a different transport protocol (which hopefully avoids fragmentation) should be considered.</t>
+
+<t>It must be noted that an attacker could intentionally exploit collisions of IP Identification numbers to perform a Denial of Service attack, by sending forged fragments that would cause the reassembly process to result in a corrupt datagram that would either be dropped by the transport protocol, or would incorrectly be handed to the corresponding application. This issue is discussed in detail in section 4.1 ("Fragment Reassembly").</t>
+</section>
+</section>
+</section>
+
+<section title="Flags">
+
+<t>The IP header contains 3 control bits, two of which are currently used for the fragmentation and reassembly function.</t>
+
+<t>As described by RFC 791, their meaning is:</t>
+
+<t>Bit 0: reserved, must be zero</t>
+<t>Bit 1: (DF) 0 = May Fragment, 1 = Don't Fragment</t>
+<t>Bit 2: (MF) 0 = Last Fragment, 1 = More Fragments</t>
+
+<t>The DF bit is usually set to implement the Path-MTU Discovery (PMTUD) mechanism described in <xref target="RFC1191"/>. However, it can also be exploited by an attacker to evade Network Intrusion Detection Systems. An attacker could send a packet with the DF bit set to a system monitored by a NIDS, and depending on the Path-MTU to the intended recipient, the packet might be dropped by some intervening router (because of being too big to be forwarded without fragmentation), without the NIDS being aware of it.</t>
+
+<t>
+<figure title="NIDS evasion by means of the Internet Protocol DF bit" anchor="nidsevasion">
+<artwork>
+                                       +---+
+                                       | R |
+                                       +---+  Victim host
+                                         |
+              Router A                   |  MTU=1500
+                                         |
+               +---+     +---+         +---+        
+               | R |-----| R |---------| R |
+               +---+     +---+         +---+
+                 |            MTU=17914      Router B
+       +---+     |      
+       | R |-----+ 
+       +---+     |
+                 |
+   NIDS Sensor   |
+                 |
+        _   ___/---\___                     Attacker
+       / \_/           \--\_          +---+
+      /       Internet      |---------|   |
+      \_                  __/         +---+
+        \__     __    ___/    <------        
+           \---/  \__/         17914-byte packet
+                               DF bit set
+</artwork>
+<postamble></postamble>
+</figure>
+</t>
+
+<t>In Figure 3, an attacker sends a 17914-byte datagram meant to the victim host in the same figure. The attacker's packet probably contains an overlapping IP fragment or an overlapping TCP segment, aiming at "confusing" the NIDS, as described in <xref target="Ptacek1998"/>. The packet is screened by the NIDS sensor at the network perimeter, which probably reassembles IP fragments and TCP segments for the purpose of assessing the data transferred to and from the monitored systems. However, as the attacker's packet should transit a link with an MTU smaller than 17914 bytes (1500 bytes in this example), the router that encounters that this packet cannot be forwarded without fragmentation (Router B) discards the packet, and sends an ICMP "fragmentation needed and DF bit set" error message to the source host. In this scenario, the NIDS may remain unaware that the screened packet never reached the intended destination, and thus get an incorrect picture of the data being transferred to the monitored systems.</t>
+
+<t>
+<list style="hanging">
+<t><xref target="Shankar2003"/> introduces a technique named "Active Mapping" that prevents evasion of a NIDS by acquiring sufficient knowledge about the network being monitored, to assess which packets will arrive at the intended recipient, and how they will be interpreted by it.</t>
+</list>
+</t>
+
+<t>Some firewalls are known to drop packets that have both the MF (More Fragments) and the DF (Don't fragment) bits set. While in principle such a packet might seem nonsensical, there are a number of reasons for which non-malicious packets with these two bits set can be found in a network. First, they may exist as the result of some middle-box processing a packet that was too large to be forwarded without fragmentation. Instead of simply dropping the corresponding packet and sending an ICMP error message to the source host, some middle-boxes fragment the packet (copying the DF bit to each fragment), and also send an ICMP error message to the originating system. Second, some systems (notably Linux) set both the MF and the DF bits to implement Path-MTU Discovery (PMTUD) for UDP. These scenarios should be taken into account when configuring firewalls and/or tuning Network Intrusion Detection Systems (NIDS).</t>
+</section>
+
+<section title="Fragment Offset">
+
+<t>The Fragment Offset is used for the fragmentation and reassembly of IP datagrams. It indicates where in the original datagram payload the payload of the fragment belongs, and is measured in units of eight bytes. As a consequence, all fragments (except the last one), have to be aligned on an 8-byte boundary. Therefore, if a packet has the MF flag set, the following check should be enforced:</t>
+
+<t>
+<artwork align="center">
+(Total Length - IHL * 4) % 8 == 0
+</artwork>
+</t>
+
+<t>If the packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented reflecting the packet drop).</t>
+
+<t>Given that Fragment Offset is a 13-bit field, it can hold a value of up to 8191, which would correspond to an offset 65528 bytes within the original (non-fragmented) datagram. As such, it is possible for a fragment to implicitly claim to belong to a datagram larger than 65535 bytes (the maximum size for a legitimate IP datagram). Even when the fragmentation mechanism would seem to allow fragments that could reassemble into such large datagrams, the intent of the specification is to allow for the transmission of datagrams of up to 65535 bytes. Therefore, if a given fragment would reassemble into a datagram of more than 65535 bytes, the resulting datagram should be dropped, and this event should be logged (e.g., a counter could be incremented reflecting the packet drop). To detect such a case, the following check should be enforced on all packets for which the Fragment Offset contains a non-zero value:</t>
+
+<t>
+<artwork align="center">
+Fragment Offset * 8 + (Total Length - IHL * 4) + IHL_First_Fragment * 4 &lt;= 65535
+</artwork>
+</t>
+
+<t>
+where IHL_First_Fragment is the IHL field of the first fragment (the one with a Fragment Offset of 0).</t>
+
+<t>If a fragment does not pass this check, it should be dropped.</t>
+
+<t>In the worst-case scenario, an attacker could craft IP fragments such that the reassembled datagram reassembled into a datagram of 131043 bytes.</t>
+
+<t>
+<list style="hanging">
+<t>Such a datagram would result when the first fragment has a Fragment Offset of 0 and a Total Length of 65532, and the second (and last) fragment has a Fragment Offset of 8189 (65512 bytes), and a Total Length of 65535. Assuming an IHL of 5 (i.e., a header length of 20 bytes), the reassembled datagram would be 65532 + (65535 - 20) = 131047 bytes.</t>
+</list>
+</t>
+
+<t>Additionally, the IP module should implement all the necessary measures to be able to handle such illegitimate reassembled datagrams, so as to avoid them from overflowing the buffer(s) used for the reassembly function.</t>
+
+<t>
+<list style="hanging">
+<t><xref target="CERT1996c"/> and <xref target="Kenney1996"/> describe the exploitation of this issue to perform a Denial of Service (DoS) attack.</t>
+</list>
+</t>
+
+</section>
+
+<section title="Time to Live (TTL)">
+
+<t>The Time to Live (TTL) field has two functions: to bind the lifetime of the upper-layer packets (e.g., TCP segments) and to prevent packets from looping indefinitely in the network.</t>
+
+<t>Originally, this field was meant to indicate the maximum time a datagram was allowed to remain in the internet system, in units of seconds. As every internet module that processes a datagram must decrement the TTL by at least one, the original definition of the TTL field became obsolete, and in practice it is interpreted as a hop count (see Section 5.3.1 of <xref target="RFC1812"/>).</t>
+
+<t>Most systems allow the administrator to configure the TTL to be used for the packets sent, with the default value usually being a power of 2, or 255 (see e.g. <xref target="Arkin2000"/>). The recommended value for the TTL field, as specified by the IANA is 64 <xref target="IANA2006b"/>. This value reflects the assumed "diameter" of the Internet, plus a margin to accommodate its growth.</t>
+
+<t>The TTL field has a number of properties that are interesting from a security point of view. Given that the default value used for the TTL is usually a power of eight, chances are that, unless the originating system has been explicitly tuned to use a non-default value, if a packet arrives with a TTL of 60, the packet was originally sent with a TTL of 64. In the same way, if a packet is received with a TTL of 120, chances are that the original packet had a TTL of 128.</t>
+
+<t>
+<list style="hanging">
+<t>This discussion assumes there was no protocol scrubber, transparent proxy, or some other middle-box that overwrites the TTL field in a non-standard way, between the originating system and the point of the network in which the packet was received.</t>
+</list>
+</t>
+
+<t>Asserting the TTL with which a packet was originally sent by the source system can help to obtain valuable information. Among other things, it may help in:</t>
+
+<t>
+<list style="symbols">
+<t>Fingerprinting the operating system being used by the source host.</t>
+<t>Fingerprinting the physical device from which the packets originate.</t>
+<t>Mapping the network topology.</t>
+<t>Locating the source host in the network topology.</t>
+<t>Evading Network Intrusion Detection Systems. </t>
+</list>
+</t>
+
+<t>Additionally, it can be used to perform functions such as:</t>
+
+<t>
+<list style="symbols">
+<t>Improving the security of applications that make use of the Internet Protocol (IP).</t>
+<t>Limiting spread of packets.</t>
+</list>
+</t>
+
+<section title="Fingerprinting the operating system in use by the source host">
+
+<t>Different operating systems use a different default TTL for the packets they send. Thus, asserting the TTL with which a packet was originally sent will help to reduce the number of possible operating systems in use by the source host.</t>
+</section>
+
+<section title="Fingerprinting the physical device from which the packets originate">
+
+<t>When several systems are behind a middle-box such as a NAT or a load balancer, the TTL may help to count the number of systems behind the middle-box. If each of the systems behind the middle-box use a different default TTL for the packets they send, or they are located in a different place of the network topology, an attacker could stimulate responses from the devices being fingerprinted, and each response that arrives with a different TTL could be assumed to come from a different device.</t>
+
+<t>
+<list style="hanging">
+<t>Of course, there are many other (and much more precise) techniques to fingerprint physical devices. Among drawbacks of this method, while many systems differ in the default TTL they use for the packets they send, there are also many implementations which use the same default TTL. Additionally, packets sent by a given device may take different routes (e.g., due to load sharing or route changes), and thus a given packet may incorrectly be presumed to come from a different device, when in fact it just traveled a different route.</t>
+</list>
+</t>
+
+</section>
+
+<section title="Mapping the Network Topology">
+<t>
+The originating host sets the TTL field of the packets it sends to progressively increasing values in order to elicit an ICPM error message from the router that decrements the TTL of each packet to zero, and thereby determines the IP addresses of the routers on the path to the packet's destination. This procedure has been traditioanlly employed by the traceroute tool.
+</t>
+</section>
+
+<section title="Locating the source host in the network topology">
+
+<t>The TTL field may also be used to locate the source system in the network topology <xref target="Northcutt2000"/>. </t>
+<t>
+<figure title="Tracking a host by means of the TTL field" align="center" anchor="ttltracking">
+<artwork>
++---+     +---+      +---+    +---+     +---+
+| A |-----| R |------| R |----| R |-----| R |
++---+     +---+      +---+    +---+     +---+
+           /           |               /   \                  
+          /            |              /     \   
+         /             |             /       +---+
+        /   +---+    +---+      +---+        | E |
+       /    | R |----| R |------| R |--      +---+
+      /     +---+    +---+\     +---+  \     
+     /     /          /    \       \    \
+    /  ----          /      +---+   \    \+---+
+   /  /             /       | F |    \    | D |
++---+          +---+        +---+     \   +---|
+| R |----------| R |--                 \
++---+          +---+  \                 \
+  |  \         /       \    +---+|     +---+
+  |   \       /         ----| R |------| R |
+  |    \     /              +---+      +---+
++---+   \ +---+    +---+    
+| B |    \| R |----| C |    
++---+     +---+    +---+
+</artwork>
+<postamble></postamble>
+</figure>
+</t>
+
+<t>Consider network topology of <xref target="ttltracking"/>. Assuming that an attacker ("F" in the figure) is performing some type of attack that requires forging the Source Address (such as a TCP-based DoS reflection attack), and some of the involved hosts are willing to cooperate to locate the attacking system.</t>
+
+<t>Assuming that:</t>
+
+<t>
+<list style="symbols">
+<t>All the packets A gets have a TTL of 61.</t>
+<t>All the packets B gets have a TTL of 61.</t>
+<t>All the packets C gets have a TTL of 61.</t>
+<t>All the packets D gets have a TTL of 62.</t>
+</list>
+</t>
+
+<t>Based on this information, and assuming that the system's default value was not overridden, it would be fair to assume that the original TTL of the packets was 64. With this information, the number of hops between the attacker and each of the aforementioned hosts can be calculated. </t>
+
+<t>The attacker is:</t>
+
+<t>
+<list style="symbols">
+<t>Three hops away from A.</t>
+<t>Three hops away from B.</t>
+<t>Three hops away from C.</t>
+<t>Two hops away from D.</t>
+</list>
+</t>
+
+<t>In the network setup of Figure 3, the only system that satisfies all these conditions is the one marked as the &quot;F&quot;.</t>
+
+<t>The scenario described above is for illustration purposes only. In practice, there are a number of factors that may prevent this technique from being successfully applied:</t>
+
+<t>
+<list style="symbols">
+<t>Unless there is a &quot;large&quot; number of cooperating systems, and the attacker is assumed to be no more than a few hops away from these systems, the number of "candidate" hosts will usually be too large for the information to be useful. </t>
+<t>The attacker may be using a non-default TTL value, or, what is worse, using a pseudo-random value for the TTL of the packets it sends.</t>
+<t>The packets sent by the attacker may take different routes, as a result of a change in network topology, load sharing, etc., and thus may lead to an incorrect analysis.</t>
+</list>
+</t>
+</section>
+
+<section title="Evading Network Intrusion Detection Systems">
+
+<t>The TTL field can be used to evade Network Intrusion Detection Systems. Depending on the position of a sensor relative to the destination host of the examined packet, the NIDS may get a different picture from that of the intended destination system. As an example, a sensor may process a packet that will expire before getting to the destination host. A general counter-measure for this type of attack is to normalize the traffic that gets to an organizational network. Examples of such traffic normalization can be found in <xref target="Paxson2001"/>. OpenBSD Packet Filter is an example of a packet filter that includes TTL-normalization functionality <xref target="OpenBSD-PF"/></t>
+</section>
+
+<section title="Improving the security of applications that make use of the Internet Protocol (IP)">
+
+<t>In some scenarios, the TTL field can be also used to improve the security of an application, by restricting the hosts that can communicate with the given application <ref target="RFC5082"/>. For example, there are applications for which the communicating systems are typically in the same network segment (i.e., there are no intervening routers). Such an application is the BGP (Border Gateway Protocol) utilized between by two peer routers.</t>
+
+<t>If both systems use a TTL of 255 for all the packets they send to each other, then a check could be enforced to require all packets meant for the application in question to have a TTL of 255.</t>
+
+<t>As all packets sent by systems that are not in the same network segment will have a TTL smaller than 255, those packets will not pass the check enforced by these two cooperating peers. This check reduces the set of systems that may perform attacks against the protected application (BGP in this case), thus mitigating the attack vectors described in <xref target="NISCC2004"/> and <xref target="Watson2004"/>.</t>
+
+<t>
+<list style="hanging">
+<t>This same check is enforced for related ICMP error messages, with the intent of mitigating the attack vectors described in <xref target="NISCC2005"/> and <xref target="I-D.ietf-tcpm-icmp-attacks"/>.</t>
+</list>
+</t>
+
+<t>The TTL field can be used in a similar way in scenarios in which the cooperating systems either do not use a default TTL of 255, or are not in the same network segment (i.e., multi-hop peering). In that case, the following check could be enforced:</t>
+
+<t>
+<artwork align="center">
+TTL &gt;= 255 - DeltaHops
+</artwork>
+</t>
+
+<t>This means that the set of hosts from which packets will be accepted for the protected application will be reduced to those that are no more than DeltaHops away. While for obvious reasons the level of protection will be smaller than in the case of directly-connected peers, the use of the TTL field for protecting multi-hop peering still reduces the set of hosts that could potentially perform a number of attacks against the protected application.</t>
+
+<t>This use of the TTL field has been officially documented by the IETF under the name "Generalized TTL Security Mechanism" (GTSM) in <xref target="RFC5082"/>.</t>
+
+<t>Some protocol scrubbers enforce a minimum value for the TTL field of the packets they forward. It must be understood that depending on the minimum TTL being enforced, and depending on the particular network setup, the protocol scrubber may actually help attackers to fool the GTSM, by &quot;raising&quot; the TTL of the attacking packets.</t>
+</section>
+
+<section title="Limiting spread">
+<t> 
+The originating host sets the TTL field to a small value (frequently 1, for link-scope services) in order to artifically limit the (topological) distance the packet is allowed to travel.  This is suggested in Section 4.2.2.9 of RFC 1812 <xref target="RFC1812"/>. Further discussion of this technique can be found in in RFC 1112 <xref target="RFC1112"/>.
+</t>
+</section>
+
+
+</section>
+
+<section title="Protocol">
+<t>
+The Protocol field indicates the protocol encapsulated in the internet datagram. The Protocol field may not only contain a value corresponding to protocol implemented by the system processing the packet, but also a value corresponding to a protocol not implemented, or even a value not yet assigned by the IANA <xref target="IANA2006c"/>.</t>
+<t>
+While in theory there should not be security implications from the use of any value in the protocol field, there have been security issues in the past with systems that had problems when handling packets with some specific protocol numbers <xref target="Cisco2003"/> <xref target="CERT2003"/>. </t>
+</section>
+
+<section title="Header Checksum">
+<t>
+The Header Checksum field is an error detection mechanism meant to detect errors in the IP header. While in principle there should not be security implications arising from this field, it should be noted that due to non-RFC-compliant implementations, the Header Checksum might be exploited to detect firewalls and/or evade network intrusion detection systems (NIDS). </t>
+
+<t><xref target="Ed3f2002"/> describes the exploitation of the TCP checksum for performing such actions. As there are internet routers known to not check the IP Header Checksum, and there might also be middle-boxes (NATs, firewalls, etc.) not checking the IP checksum allegedly due to performance reasons, similar malicious activity to the one described in <xref target="Ed3f2002"/> might be performed with the IP checksum.</t>
+</section>
+
+<section title="Source Address">
+
+<t>The Source Address of an IP datagram identifies the node from which the packet originated.</t>
+
+<t>
+<list style="hanging">
+<t>Strictly speaking, the Source Address of an IP datagram identifies the interface of the sending system from which the packet was sent, (rather than the originating "system"), as in the Internet Architecture there's no concept of "node address".</t>
+</list>
+</t>
+
+<t>Unfortunately, it is trivial to forge the Source Address of an Internet datagram because of the apparent lack of consistent &amp;egress filtering&amp; near the edge of the network. This has been exploited in the past for performing a variety of DoS (Denial of Service) attacks <xref target="NISCC2004"/> <xref target="RFC4987"/> <xref target="CERT1996a"/> <xref target="CERT1996b"/> <xref target="CERT1998a"/>, and to impersonate as other systems in scenarios in which authentication was based on the Source Address of the sending system <xref target="daemon91996"/>.  </t>
+
+<t>The extent to which these attacks can be successfully performed in the Internet can be reduced through deployment of ingress/egress filtering in the internet routers. <xref target="NISCC2006"/> is a detailed guide on ingress and egress filtering. <xref target="RFC2827"/> and <xref target="RFC3704"/> discuss ingress filtering. <xref target="GIAC2000"/> discusses egress filtering.</t>
+
+<t>
+<list style="hanging">
+<t>Even when the obvious field on which to perform checks for ingress/egress filtering is the Source Address and Destination Address fields of the IP header, there are other occurrences of IP addresses on which the same type of checks should be performed. One example is the IP addresses contained in the payload of ICMP error messages, as discussed in <xref target="I-D.ietf-tcpm-icmp-attacks"/> and <xref target="Gont2006"/>.</t>
+</list>
+</t>
+
+<t>There are a number of sanity checks that should be performed on the Source Address of an IP datagram. Details can be found in Section 4.2 ("Addressing").</t>
+
+<t>Additionally, there exist freely available tools that allow administrators to monitor which IP addresses are used with which MAC addresses <xref target="LBNL2006"/>. This functionality is also included in many Network Intrusion Detection Systems (NIDS).</t>
+
+<t>It is also very important to understand that authentication should never rely solely on the Source Address of the communicating systems.</t>
+</section>
+
+<section title="Destination Address">
+<t>The Destination Address of an IP datagram identifies the destination host to which the packet is meant to be delivered.</t>
+
+<t>
+<list style="hanging">
+<t>Strictly speaking, the Destination Address of an IP datagram identifies the interface of the destination network interface, rather than the destination "system", as in the Internet Architecture there's no concept of "node address".</t>
+</list>
+</t>
+
+<t>There are a number of sanity checks that should be performed on the Destination Address of an IP datagram. Details can be found in Section 4.2 ("Addressing").</t>
+</section>
+
+<section title="Options">
+
+<t>According to RFC 791, IP options must be implemented by all IP modules, both in hosts and gateways (i.e., end-systems and intermediate-systems).</t>
+
+<t>There are two cases for the format of an option:</t>
+
+<t>
+<list style="symbols">
+<t>Case 1: A single byte of option-type.</t>
+<t>Case 2: An option-type byte, an option-length byte, and the actual option-data bytes.</t>
+</list>
+</t>
+
+<t>In the Case 2, the option-length byte counts the option-type byte and the option-length byte, as well as the actual option-data bytes. </t>
+
+<t>All current and future options except "End of Option List" (Type = 0) and "No Operation" (Type = 1), are of Class 2.</t>
+
+<t>The option-type has three fields:</t>
+
+<t>
+<list style="symbols">
+<t>1 bit:  copied flag.</t>
+<t>2 bits: option class.</t>
+<t>5 bits: option number.</t>
+</list>
+</t>
+
+<t>The copied flag indicates whether this option should be copied to all fragments in the event the packet carrying it needs to be fragmented:</t>
+
+<t>
+<list style="symbols">
+<t>0 = not copied.</t>
+<t>1 = copied.</t>
+</list>
+</t>
+
+<t>The values for the option class are:</t>
+
+<t>
+<list style="symbols">
+<t>0 = control.</t>
+<t>1 = reserved for future use.</t>
+<t>2 = debugging and measurement.</t>
+<t>3 = reserved for future use.</t>
+</list>
+</t>
+
+<t>This format allows for the creation of new options for the extension of the Internet Protocol (IP).</t>
+
+<t>Finally, the option number identifies the syntax of the rest of the option.</t>
+
+<t><xref target="IANA2006b"/> contains the list of the currently assigned IP option numbers.</t>
+
+<section title="General issues with IP options">
+
+<t>The following subsections discuss security issues that apply to all IP options. The proposed checks should be performed in addition to any option-specific checks proposed in the next sections.</t>
+
+<section title="Processing requirements">
+
+<t>Router manufacturers tend to do IP option processing on the main processor, rather than on line cards. Unless special care is taken, this represents Denial of Service (DoS) risk, as there is potential for overwhelming the router with option processing.</t>
+
+<t>To reduce the impact of these packets on the system performance, a few counter-measures could be implemented:</t>
+
+<t>
+<list style="symbols">
+<t>Rate-limit the number of packets with IP options that are processed by the system.</t>
+<t>Enforce a limit on the maximum number of options to be accepted on a given internet datagram.</t>
+</list>
+</t>
+
+<t>The first check avoids a flow of packets with IP options to overwhelm the system in question. The second check avoids packets with multiple IP options to affect the performance of the system.</t>
+</section>
+
+<section title="Processing of the options by the upper layer protocol">
+
+<t>Section 3.2.1.8 of RFC 1122 <xref target="RFC1122"/> states that all the IP options received in IP datagrams must be passed to the transport layer (or to ICMP processing when the datagram is an ICMP message). Therefore, care in option processing must be taken not only at the internet layer, but also in every protocol module that may end up processing the options included in an IP datagram.</t>
+</section>
+
+
+<section title="General sanity checks on IP options">
+
+<t>There are a number of sanity checks that should be performed on IP options before further option processing is done. They help prevent a number of potential security problems, including buffer overflows. When these checks fail, the packet carrying the option should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop). </t>
+
+<t>RFC 1122 <xref target="RFC1122"/> recommends to send an ICMP "Parameter Problem" message to the originating system when a packet is dropped because of a invalid value in a field, such as the cases discussed in the following subsections. Sending such a message might help in debugging some network problems. However, it would also alert attackers about the system that is dropping packets because of the invalid values in the protocol fields.</t>
+
+<t>We advice that systems default to sending an ICMP "Parameter Problem" error message when a packet is dropped because of an invalid value in a protocol field (e.g., as a result of dropping a packet due to the sanity checks described in this section). However, we recommend that systems provide a system-wide toggle that allows an administrator to override the default behavior so that packets can be silently dropped when an invalid value in a protocol field is encountered.</t>
+
+<t>
+<list style="hanging">
+<t hangText="Option length">
+<vspace blankLines="1" />Section 3.2.1.8 of RFC 1122 explicitly states that the IP layer must not crash as the result of an option length that is outside the possible range, and mentions that erroneous option lengths have been observed to put some IP implementations into infinite loops.</t>
+
+<t>For options that belong to the "Case 2" described in the previous section, the following check should be performed:</t>
+
+<t>
+<artwork align="center">
+option-length &gt;= 2
+</artwork>
+</t>
+
+<t>
+<list style="hanging">
+<t>The value "2" accounts for the option-type byte, and the option-length byte.</t>
+</list>
+</t>
+
+<t>This check prevents, among other things, loops in option processing that may arise from incorrect option lengths.</t>
+
+<t>Additionally, while the option-length byte of IP options of "Case 2" allows for an option length of up to 255 bytes, there is a limit on legitimate option length imposed by the syntax of the IP header. </t>
+
+<t>For all options of "Case 2", the following check should be enforced:</t>
+
+<t>
+<artwork align="center">
+option-offset + option-length &lt;= IHL * 4
+</artwork>
+</t>
+
+
+<t>Where option-offset is the offset of the first byte of the option within the IP header, with the first byte of the IP header being assigned an offset of 0. </t>
+
+<t>This check assures that the option does not overlap with the IP payload (i.e., it does not go past the IP header). If the packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>The aforementioned check is meant to detect forged option-length values that might make an option overlap with the IP payload. This would be particularly dangerous for those IP options which request the processing systems to write information into the option-data area (such as the Record Route option), as it would allow the generation of overflows.</t>
+
+<t hangText="Data types">
+
+<vspace blankLines="1" />Many IP options use pointer and length fields. Care must be taken as to the data type used for these fields in the implementation. For example, if an 8-bit signed data type were used to hold an 8-bit pointer, then, pointer values larger than 128 might mistakenly be interpreted as negative numbers, and thus might lead to unpredictable results.</t>
+</list>
+</t>
+
+</section>
+</section>
+
+<section title="Issues with specific options">
+<section title="End of Option List (Type = 0)">
+
+<t>This option is used to indicate the "end of options" in those cases in which the end of options would not coincide with the end of the Internet Protocol Header.</t>
+
+<t>IP systems are required to ignore those options they do not implement. Therefore, even in those cases in which this option is required, but is missing, IP systems should be able to process the remaining bytes of the IP header without any problems.</t>
+
+<t>Additionally, nodes must ignore octets in the IP header following the &amp;End of Option List&amp; option, and regard these as padding.</t>
+</section>
+
+<section title="No Operation (Type = 1)">
+
+<t>The no-operation option is basically meant to allow the sending system to align subsequent options in, for example, 32-bit boundaries.</t>
+
+<t>This option does not have security implications.</t>
+</section>
+
+
+<section title="Loose Source and Record Route (LSRR) (Type = 131)" anchor="Section3.13.2.3">
+
+<t>This option lets the originating system specify a number of intermediate systems a packet must pass through to get to the destination host. Additionally, the route followed by the packet is recorded in the option. The receiving host (end-system) must use the reverse of the path contained in the received LSRR option.</t>
+
+<t>The LSSR option can be of help in debugging some network problems. Some ISP (Internet Service Provider) peering agreements require support for this option in the routers within the peer of the ISP. </t>
+
+<t>The LSRR option has well-known security implications. Among other things, the option can be used to:</t>
+
+<t>
+<list style="symbols">
+<t>Bypass firewall rules</t>
+<t>Reach otherwise unreachable internet systems</t>
+<t>Establish TCP connections in a stealthy way</t>
+<t>Learn about the topology of a network</t>
+<t>Perform bandwidth-exhaustion attacks</t>
+</list>
+</t>
+
+<t>Of these attack vectors, the one that has probably received least attention is the use of the LSRR option to perform bandwidth exhaustion attacks. The LSRR option can be used as an amplification method for performing bandwidth-exhaustion attacks, as an attacker could make a packet bounce multiple times between a number of systems by carefully crafting an LSRR option.</t>
+
+<t>
+<list style="hanging">
+<t>This is the IPv4-version of the IPv6 amplification attack that was widely publicized in 2007 <xref target="Biondi2007"/>. The only difference is that the maximum length of the IPv4 header (and hence the LSRR option) limits the amplification factor when compared to the IPv6 counter-part.</t>
+</list>
+</t>
+
+<t>While the LSSR option may be of help in debugging some network problems, its security implications outweigh any legitimate use.</t>
+
+<t>All systems should, by default, drop IP packets that contain an LSRR option, and should log this event (e.g., a counter could be incremented to reflect the packet drop). However, they should provide a system-wide toggle to enable support for this option for those scenarios in which this option is required. Such system-wide toggle should default to "off" (or &quot;disable&quot;). </t>
+
+<t>
+<list style="hanging">
+<t><xref target="OpenBSD1998"/> is a security advisory about an improper implementation of such a system-wide toggle in 4.4BSD kernels.</t>
+</list>
+</t>
+
+<t>Section 3.3.5 of RFC 1122 <xref target="RFC1122"/> states that a host may be able to act as an intermediate hop in a source route, forwarding a source-routed datagram to the next specified hop. We strongly discourage host software from forwarding source-routed datagrams. </t>
+
+<t>If processing of source-routed datagrams is explicitly enabled in a system, the following sanity checks should be performed.</t>
+
+<t>RFC 791 states that this option should appear, at most, once in a given packet. Thus, if a packet contains more than one LSRR option, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop). Additionally, packets containing a combination of LSRR and SSRR options should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>As all other IP options of &amp;Case 2&amp;, the LSSR contains a Length field that indicates the length of the option. Given the format of the option, the Length field should be checked to have a minimum value of three and be 3 (3 + n*4):</t>
+
+<t>
+<artwork align="center">
+LSRR.Length % 4 == 3 &amp;&amp; LSRR.Length != 0
+</artwork>
+</t>
+
+<t>If the packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>The Pointer is relative to this option. Thus, the minimum legal value is 4. Therefore, the following check should be performed.</t>
+
+<t>
+<artwork align="center">
+LSRR.Pointer &gt;= 4
+</artwork>
+</t>
+
+<t>If the packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop). Additionally, the Pointer field should be a multiple of 4. Consequently, the following check should be performed:</t>
+
+<t>
+<artwork align="center">
+LSRR.Pointer % 4 == 0
+</artwork>
+</t>
+
+<t>If a packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>When a system receives an IP packet with the LSRR option passing the above checks, it should check whether the source route is empty or not. The option is empty if:</t>
+
+<t>
+<artwork align="center">
+LSRR.Pointer &gt; LSRR.Length
+</artwork>
+</t>
+
+<t>In that case, routing should be based on the Destination Address field, and no further processing should be done on the LSRR option.</t>
+
+<t>
+<list style="hanging">
+<t><xref target="Microsoft1999"/> is a security advisory about a vulnerability arising from improper validation of the LSRR.Pointer field.</t>
+</list>
+</t>
+
+<t>If the address in the Destination Address field has been reached, and the option is not empty, the next address in the source route replaces the address in the Destination Address field, and the IP address of the interface that will be used to forward this datagram is recorded in its place in the LSRR.Data field.  Then, the LSRR.Pointer. is incremented by 4.</t>
+
+<t>
+<list style="hanging">
+Note that the sanity checks for the LSRR.Length and the LSRR.Pointer fields described above ensure that if the option is not empty, there will be (4*n) octets in the option. That is, there will be at least one IP address to read, and enough room to record the IP address of the interface that will be used to forward this datagram.</t>
+</list>
+</t>
+
+<t>The LSRR must be copied on fragmentation. This means that if a packet that carries the LSRR is fragmented, each of the fragments will have to go through the list of systems specified in the LSRR option.</t>
+</section>
+
+<section title="Strict Source and Record Route (SSRR) (Type = 137)">
+
+<t>This option allows the originating system to specify a number of intermediate systems a packet must pass through to get to the destination host. Additionally, the route followed by the packet is recorded in the option, and the destination host (end-system) must use the reverse of the path contained in the received SSRR option.</t>
+
+<t>This option is similar to the Loose Source and Record Route (LSRR) option, with the only difference that in the case of SSRR, the route specified in the option is the exact route the packet must take (i.e., no other intervening routers are allowed to be in the route).</t>
+
+<t>The SSSR option can be of help in debugging some network problems. Some ISP (Internet Service Provider) peering agreements require support for this option in the routers within the peer of the ISP. </t>
+
+<t>The SSRR option has the same security implications as the LSRR option. Please refer to <xref target="Section3.13.2.3"/> for a discussion of such security implications.</t>
+
+<t>As with the LSRR, while the SSSR option may be of help in debugging some network problems, its security implications outweigh any legitimate use of it.</t>
+
+<t>All systems should, by default, drop IP packets that contain an SSRR option, and should log this event (e.g., a counter could be incremented to reflect the packet drop). However, they should provide a system-wide toggle to enable support for this option for those scenarios in which this option is required. Such system-wide toggle should default to "off" (or "disable"). </t>
+
+<t>
+<list style="hanging">
+<t><xref target="OpenBSD1998"/> is a security advisory about an improper implementation of such a system-wide toggle in 4.4BSD kernels.</t>
+</list>
+</t>
+
+<t>In the event processing of the SSRR option were explicitly enabled, the same sanity checks described for the LSRR option in <xref target="Section3.13.2.3"/> should be performed on the SSRR option. Namely, sanity checks shoudl be performed on the option length (SSRR.Length) and the pointer field (SSRR.Pointer).</t>
+
+<t>If the packet passes the aforementioned sanity checks, the receiving system should determine whether the Destination Address of the packet corresponds to one of its IP addresses. If does not, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>
+<list style="hanging">
+<t>
+Contrary to the IP Loose Source and Record Route (LSRR) option, the SSRR option does not allow in the route other routers than those contained in the option. If the system implements the weak end-system model, it is allowed for the system to receive a packet destined to any of its IP addresses, on any of its interfaces. If the system implements the strong end-system model, a packet destined to it can be received only on the interface that corresponds to the IP address contained in the Destination Address field <xref target="RFC1122"/>. </t>
+</list>
+</t>
+
+<t>If the packet passes this check, the receiving system should determine whether the source route is empty or not. The option is empty if:</t>
+
+<t>
+<artwork align="center">
+SSRR.Pointer &gt; SSRR.Length
+</artwork>
+</t>
+
+<t>In that case, if the address in the destination field has not been reached, the packet should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>
+<list style="hanging">
+<t>
+<xref target="Microsoft1999"/> is a security advisory about a vulnerability arising from improper validation of the SSRR.Pointer field.</t>
+</list>
+</t>
+
+<t>If the option is not empty, and the address in the Destination Address field has been reached, the next address in the source route replaces the address in the Destination Address field, and the IP address of the interface that will be used to forward this datagram is recorded in its place in the source route (SSRR.Data field). Then, the SSRR.Pointer. is incremented by 4.</t>
+
+<t>
+<list style="hanging">
+Note that the sanity checks for the SSRR.Length and the SSRR.Pointer fields described above ensure that if the option is not empty, there will be (4*n) octets in the option. That is, there will be at least one IP address to read, and enough room to record the IP address of the interface that will be used to forward this datagram.</t>
+</list>
+</t>
+
+<t>The SSRR option must be copied on fragmentation. This means that if a packet that carries the SSRR is fragmented, each of the fragments will have to go through the list of systems specified in the SSRR option.</t>
+</section>
+
+<section title="Record Route (Type = 7)">
+
+<t>This option provides a means to record the route that a given packet follows.</t>
+
+<t>The option begins with an 8-bit option code, which is equal to 7. The second byte is the option length, which includes the option-type byte, the option-length byte, the pointer byte, and the actual option-data. The third byte is a pointer into the route data, indicating the first byte of the area in which to store the next route data. The pointer is relative to the option start.</t>
+
+<t>RFC 791 states that this option should appear, at most, once in a given packet. Therefore, if a packet has more than one instance of this option, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>The same sanity checks performed for the Length field and the Pointer field of the LSRR and the SSRR options should be performed on the Length field (RR.Length) and the Pointer field (RR.Pointer) of the RR option. As with the LSRR and SSRR options, if the packet does not pass these checks it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+
+<t>When a system receives an IP packet with the Record Route option that passes the above checks, it should check whether there is space in the option to store route information. The option is full if:</t>
+
+<t>
+<artwork align="center">
+RR.Pointer &gt; RR.Length
+</artwork>
+</t>
+
+<t>If the option is full, the datagram should be forwarded without further processing of this option.</t>
+
+<t>If the option is not full (i.e., RR.Pointer <= RR.Length), the IP address of the interface that will be used to forward this datagram should be recorded into the area pointed to by the RR.Pointer, and RR.Pointer should then incremented by 4.</t>
+
+<t>This option is not copied on fragmentation, and thus appears in the first fragment only. If a fragment other than the one with offset 0 contains the Record Route option, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+</section>
+
+<section title="Stream Identifier (Type = 136)">
+
+<t>The Stream Identifier option originally provided a means for the 16-bit SATNET stream Identifier to be carried through networks that did not support the stream concept.</t>
+
+<t>However, as stated by Section 4.2.2.1 of RFC 1812 <xref target="RFC1812"/>, this option is obsolete. Therefore, it must be ignored by the processing systems.</t>
+
+<t>In the case of legacy systems still using this option, the length field of the option should be checked to be 4. If the option does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>RFC 791 states that this option appears at most once in a given datagram. Therefore, if a packet contains more than one instance of this option, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+</section>
+
+<section title="Internet Timestamp (Type = 68)">
+
+<t>This option provides a means for recording the time at which each system processed this datagram. The timestamp option has a number of security implications. Among them are: </t>
+
+<t>
+<list style="symbols">
+<t>It allows an attacker to obtain the current time of the systems that process the packet, which the attacker may find useful in a number of scenarios.</t>
+<t>It may be used to map the network topology, in a similar way to the IP Record Route option.</t>
+<t>It may be used to fingerprint the operating system in use by a system processing the datagram.</t>
+<t>It may be used to fingerprint physical devices, by analyzing the clock skew.</t>
+</list>
+</t>
+
+<t>Therefore, by default, the timestamp option should be ignored.</t>
+
+<t>For those systems that have been explicitly configured to honor this option, the rest of this subsection describes some sanity checks that should be enforced on the option before further processing.</t>
+
+<t>The option begins with an option-type byte, which must be equal to 68. The second byte is the option-length, which includes the option-type byte, the option-length byte, the pointer, and the overflow/flag byte. The minimum legal value for the option-length byte is 4, which corresponds to an Internet Timestamp option that is empty (no space to store timestamps). Therefore, upon receipt of a packet that contains an Internet Timestamp option, the following check should be performed:</t>
+
+<t>
+<artwork align="center">
+IT.Length &gt;= 4
+</artwork>
+</t>
+
+<t>If the packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+
+<t>The Pointer is an index within this option, counting the option type octet as octet #1. It points to the first byte of the area in which the next timestamp data should be stored and thus, the minimum legal value is 5.  Since the only change of the Pointer allowed by RFC 791 is incrementing it by 4 or 8, the following checks should be performed on the Internet Timestamp option, depending on the Flag value (see below).</t>
+
+<t>If IT.Flag is equal to 0, the following check should be performed:</t>
+
+<t>
+<artwork align="center">
+IT.Pointer %4 == 1 &amp;&amp; IT.Pointer != 1
+</artwork>
+</t>
+
+<t>If the packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>Otherwise, the following sanity check should be performed on the option:</t>
+
+<t>
+<artwork align="center">
+IT.Pointer % 8 == 5
+</artwork>
+</t>
+
+<t>If the packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>The flag field has three possible legal values:</t>
+
+<t>
+<list style="symbols">
+<t>0: Record time stamps only, stored in consecutive 32-bit words.</t>
+<t>1: Record each timestamp preceded with the internet address of the registering entity.</t>
+<t>3: The internet address fields of the option are pre-specified. An IP module only registers its timestamp if it matches its own address with the next specified internet address.</t>
+</list>
+</t>
+
+<t>Therefore the following check should be performed:</t>
+
+<t>
+<artwork align="center">
+IT.Flag == 0 || IT.Flag == 1 || IT.Flag == 3
+</artwork>
+</t>
+
+<t>If the packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>The timestamp field is a right-justified 32-bit timestamp in milliseconds since UTC. If the time is not available in milliseconds, or cannot be provided with respect to UTC, then any time may be inserted as a timestamp, provided the high order bit of the timestamp is set, to indicate this non-standard value.</t>
+
+<t>According to RFC 791, the initial contents of the timestamp area must be initialized to zero, or internet address/zero pairs. However, internet systems should be able to handle non-zero values, possibly discarding the offending datagram.</t>
+
+<t>When an internet system receives a packet with an Internet Timestamp option, it decides whether it should record its timestamp in the option. If it determines that it should, it should then determine whether the timestamp data area is full, by means of the following check:</t>
+
+<t>
+<artwork align="center">
+IT.Pointer &gt; IT.Length
+</artwork>
+</t>
+
+<t>If this condition is true, the timestamp data area is full. If not, there is room in the timestamp data area.</t>
+
+<t>If the timestamp data area is full, the overflow byte should be incremented, and the packet should be forwarded without inserting the timestamp. If the overflow byte itself overflows, the packet should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>If the timestamp data area is not full, then processing continues as follows (note that the above checks on IT.Pointer ensure that there is room for another entry in the option):</t>
+
+<t>
+<list style="symbols">
+<t>If IT.Flag is 0, then the system's 32-bit timestamp is stored into the area pointed to by the pointer byte and the pointer byte is incremented by 4.</t>
+
+<t>
+If IT.Flag is 1, then the IP address of the system is stored into the area pointed to by the pointer byte, followed by the 32-bit system timestamp, and the pointer byte is incremented by 8.</t
+
+<t>
+Otherwise (IT.Flag is 3), if the IP address in the first 4 bytes pointed to by IT.Pointer matches one of the IP addresses assigned to an interface of the system, then the system's timestamp is stored into the area pointed to by IT.Pointer + 4, and the pointer byte is incremented by 8.</t>
+</list>
+</t>
+ 
+
+<t><xref target="Kohno2005"/> describes a technique for fingerprinting devices by measuring the clock skew. It exploits, among other things, the timestamps that can be obtained by means of the ICMP timestamp request messages <xref target="RFC0791"/>. However, the same fingerprinting method could be implemented with the aid of the Internet Timestamp option.</t>
+</section>
+
+<section title="Router Alert (Type = 148)">
+
+<t>The Router Alert option is defined in RFC 2113 <xref target="RFC2113"/> and later updates to it have been clarified by RFC 5350 <xref target="RFC5350"/>.  It contains a 16-bit Value governed by an IANA registry (see <xref target="RFC5350"/>).  The Router Alert option has the semantic &quot;routers should examine this packet more closely, if they participate in the functionality denoted by the Value of the option&quot;.</t>
+
+
+<t>According to the syntax of the option as defined in RFC 2113, the following check should be enforced, if the router supports this option:</t>
+<t>
+<artwork align="center">
+RA.Length == 4
+</artwork>
+</t>
+
+<t>If the packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>A packet that contains a Router Alert option with an option value corresponding to functionality supported by an active module in the router will not go through the router's fast-path but will be processed in the slow path of the router, handing it over for closer inspection to the modules that has registered the matching option value.  Therefore, this option may impact the performance of the systems that handle the packet carrying it.</t>
+<t>As explained in RFC 2113 <xref target="RFC2113"/>, hosts should ignore this option.</t>
+</section>
+
+<section title="Probe MTU (Type = 11) (obsolete)">
+
+<t>This option was defined in RFC 1063 <xref target="RFC1063"/>, and originally provided a mechanism to discover the Path-MTU.</t>
+
+<t>This option is obsolete, and therefore any packet that is received containing this option should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+</section>
+
+<section title="Reply MTU (Type = 12) (obsolete)">
+
+<t>This option is defined in RFC 1063 <xref target="RFC1063"/>, and originally provided a mechanism to discover the Path-MTU.</t>
+
+<t>This option is obsolete, and therefore any packet that is received containing this option should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+</section>
+
+<section title="Traceroute (Type = 82)">
+
+<t>This option is defined in RFC 1393 <xref target="RFC1393"/>, and originally provided a mechanism to trace the path to a host.</t>
+
+<t>This option is obsolete, and therefore any packet that is received containing this option should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+</section>
+
+<section title="DoD Basic Security Option (Type = 130)">
+
+<t>This option is used by Multi-Level-Secure (MLS) end-systems and intermediate systems in specific environments to <xref target="RFC1108"/>:</t>
+
+<t>
+<list style="symbols">
+<t>Transmit from source to destination in a network standard representation the common security labels required by computer security models,</t>
+<t>Validate the datagram as appropriate for transmission from the source and delivery to the destination, and,</t>
+<t>Ensure that the route taken by the datagram is protected to the level required by all protection authorities indicated on the datagram.</t>
+</list>
+</t>
+
+<t>It is specified by RFC 1108 <xref target="RFC1108"/> (which obsoletes RFC 1038 <xref target="RFC1038"/>).</t>
+
+<t>
+<list style="hanging">
+<t>RFC 791 <xref target="RFC0791"/> defined the "Security Option" (Type = 130), which used the same option type as the DoD Basic Security option discussed in this section. The "Security Option" specified in RFC 791 is considered obsolete by Section 3.2.1.8 of RFC 1122, and therefore the discussion in this section is focused on the DoD Basic Security option specified by RFC 1108 <xref target="RFC1108"/>.</t>
+</list>
+</t>
+
+<t>Section 4.2.2.1 of RFC 1812 states that routers "SHOULD implement this option".</t>
+
+<t>The DoD Basic Security Option is currently implemented in a number of operating systems (e.g., <xref target="IRIX2008"/>, <xref target="SELinux2008"/>, <xref target="Solaris2008"/>, and <xref target="Cisco2008"/>), and deployed in a number of high-security networks.</t>
+
+<t>Systems that belong to networks in which this option is in use should process the DoD Basic Security option contained in each packet as specified in <xref target="RFC1108"/>.</t>
+
+<t>RFC 1108 states that the option should appear at most once in a datagram. Therefore, if more than one DoD Basic Security option (BSO) appears in a given datagram, the corresponding datagram should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>RFC 1108 states that the option Length is variable, with a minimum option Length of 3 bytes. Therefore, the following check should be performed:</t>
+
+<t>
+<artwork align="center">
+BSO.Length &gt;= 3
+</artwork>
+</t>
+
+<t>If the packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>
+<list style="hanging">
+<t>Current deployments of the security options described in this section and the two subsequent sections have motivated the proposal of a "Common Architecture Label IPv6 Security Option (CALIPSO)" for the IPv6 protocol. <xref target="RFC5570"/>.</t>
+</list>
+</t>
+</section>
+
+<section title="DoD Extended Security Option (Type = 133)">
+
+<t>This option permits additional security labeling information, beyond that present in the Basic Security Option (Section 3.13.2.12), to be supplied in an IP datagram to meet the needs of registered authorities. It is specified by RFC 1108 <xref target="RFC1108"/>.</t>
+
+<t>This option may be present only in conjunction with the DoD Basic Security option. Therefore, if a packet contains a DoD Extended Security option (ESO), but does not contain a DoD Basic Security option, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop). It should be noted that, unlike the DoD Basic Security option, this option may appear multiple times in a single IP header.</t>
+
+<t>Systems that belong to networks in which this option is in use, should process the DoD Extended Security option contained in each packet as specified in RFC 1108 <xref target="RFC1108"/>.</t>
+
+<t>RFC 1108 states that the option Length is variable, with a minimum option Length of 3 bytes. Therefore, the following check should be performed:</t>
+
+<t>
+<artwork align="center">
+ESO.Length &gt;= 3
+</artwork>
+</t>
+
+<t>If the packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+</section>
+
+<section title="Commercial IP Security Option (CIPSO) (Type = 134)">
+
+<t>This option was proposed by the Trusted Systems Interoperability Group (TSIG), with the intent of meeting trusted networking requirements for the commercial trusted systems market place. It is specified in <xref target="CIPSO1992"/> and <xref target="FIPS1994"/>.</t>
+
+<t>
+<list style="hanging">
+<t>The TSIG proposal was taken to the Commercial Internet Security Option (CIPSO) Working Group of the IETF <xref target="CIPSOWG1994"/>, and an Internet-Draft was produced <xref target="CIPSO1992"/>. The Internet-Draft was never published as an RFC, but the proposal was later standardized by the U.S. National Institute of Standards and Technology (NIST) as "Federal Information Processing Standard Publication 188" <xref target="FIPS1994"/>.</t>
+</list>
+</t>
+
+<t>It is currently implemented in a number of operating systems (e.g., IRIX <xref target="IRIX2008"/>, Security-Enhanced Linux <xref target="SELinux2008"/>, and Solaris <xref target="Solaris2008"/>), and deployed in a number of high-security networks.</t>
+
+<t>
+<list style="hanging">
+<t><xref target="Zakrzewski2002"/> and <xref target="Haddad2004"/> provide an overview of a Linux implementation.</t>
+</list>
+</t>
+<t>Systems that belong to networks in which this option is in use should process the CIPSO option contained in each packet as specified in <xref target="CIPSO1992"/>.</t>
+
+<t>According to the option syntax specified in <xref target="CIPSO1992"/> the following validation check should be performed:</t>
+
+<t>
+<artwork align="center">
+CIPSO.Length &gt;= 6
+</artwork>
+</t>
+
+<t>If a packet does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+</section>
+
+<section title="Sender Directed Multi-Destination Delivery (Type = 149)">
+
+<t>This option is defined in RFC 1770 <xref target="RFC1770"/>, and originally provided unreliable UDP delivery to a set of addresses included in the option.</t>
+
+<t>This option is obsolete. If a received packet contains this option, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+</section>
+</section>
+</section>
+
+</section>
+
+
+<section title="Internet Protocol Mechanisms">
+<section title="Fragment reassembly">
+
+<t>To accommodate networks with different Maximum Transmission Units (MTUs), the Internet Protocol provides a mechanism for the fragmentation of IP packets by end-systems (hosts) and/or intermediate systems (routers). Reassembly of fragments is performed only by the end-systems. </t>
+
+<t>
+<list style="hanging">
+<t><xref target="Cerf1974"/> provides the rationale for which packet reassembly is not performed by intermediate systems.</t>
+</list>
+</t>
+
+<t>During the last few decades, IP fragmentation and reassembly has been exploited in a number of ways, to perform actions such as evading Network Intrusion Detection Systems (NIDS), bypassing firewall rules, and performing Denial of Service (DoS) attacks.</t>
+
+<t>
+<list style="hanging">
+<t><xref target="Bendi1998"/> and <xref target="Humble1998"/> are examples of the exploitation of these issues for performing Denial of Service (DoS) attacks. <xref target="CERT1997"/> and <xref target="CERT1998b"/> document these issues. <xref target="Anderson2001"/> is a survey of fragmentation attacks. <xref target="US-CERT2001"/> is an example of the exploitation of IP fragmentation to bypass firewall rules. <xref target="CERT1999"/> describes the implementation of fragmentation attacks in Distributed Denial of Service (DDoS) attack tools. </t>
+</list>
+</t>
+
+<t>The problem with IP fragment reassembly basically has to do with the complexity of the function, in a number of aspects:</t>
+
+<t>
+<list style="symbols">
+<t>Fragment reassembly is a stateful operation for a stateless protocol (IP). The IP module at the host performing the reassembly function must allocate memory buffers both for temporarily storing the received fragments, and to perform the reassembly function. Attackers can exploit this fact to exhaust memory buffers at the system performing the fragment reassembly.</t>
+<t>The fragmentation and reassembly mechanisms were designed at a time in which the available bandwidths were very different from the bandwidths available nowadays. With the current available bandwidths, a number of interoperability problems may arise. And these issues may be intentionally exploited by attackers to perform Denial of Service (DoS) attacks.</t>
+<t>Fragment reassembly must usually be performed without any knowledge of the properties of the path the fragments follow. Without this information, hosts cannot make any educated guess on how long they should wait for missing fragments to arrive. </t>
+<t>The fragment reassembly algorithm, as described by the IETF specifications, is ambiguous, and allows for a number of interpretations, each of which has found place in different TCP/IP stack implementations.</t>
+<t>The reassembly process is somewhat complex. Fragments may arrive out of order, duplicated, overlapping each other, etc. This complexity has lead to numerous bugs in different implementations of the IP protocol.</t>
+</list>
+</t>
+
+<section title="Security Implications of Fragment Reassembly">
+<section title="Problems related with memory allocation">
+
+<t>When an IP datagram is received by an end-system, it will be temporarily stored in system memory, until the IP module processes it and hands it to the protocol machine that corresponds to the encapsulated protocol. </t>
+
+<t>In the case of fragmented IP packets, while the IP module may perform preliminary processing of the IP header (such as checking the header for errors and processing IP options), fragments must be kept in system buffers until all fragments are received and are reassembled into a complete internet datagram.</t>
+
+<t>As mentioned above, the fact that the internet layer will not usually have information about the characteristics of the path between the system and the remote host, no educated guess can be made on the amount of time that should be waited for the other fragments to arrive. Therefore, the specifications recommend to wait for a period of time that will be acceptable for virtually all the possible network scenarios in which the protocols might operate. Specifically, RFC 1122 <xref target="RFC1122"/> states that the reassembly timeout should be a fixed value between 60 and 120 seconds. If after waiting for that period of time the remaining fragments have not yet arrived, all the received fragments for the corresponding packet are discarded.</t>
+
+<t>
+<list style="hanging">
+<t>The original IP Specification, RFC 791 <xref target="RFC0791"/>, states that systems should wait for at least 15 seconds for the missing fragments to arrive. Systems that follow the "Example Reassembly Procedure" described in Section 3.2 of RFC 791 may end up using a reassembly timer of up to 4.25 minutes, with minimum of 15 seconds. Section 3.3.2 ("Reassembly") of RFC 1122 corrected this advice, stating that the reassembly timeout should be a fixed value between 60 and 120 seconds. </t>
+</list>
+</t>
+
+<t>However, the longer the system waits for the missing fragments to arrive, the longer the corresponding system resources must be tied to the corresponding packet. The amount of system memory is finite, and even with today's systems, it can still be considered a scarce resource.</t>
+
+<t>An attacker could take advantage of the uncomfortable situation the system performing fragment reassembly is in, by sending forged fragments that will never reassemble into a complete datagram. That is, an attacker would send many different fragments, with different IP IDs, without ever sending all the necessary fragments that would be needed to reassemble them into a full IP datagram. For each of the fragments, the IP module would allocate resources and tie them to the corresponding fragment, until any the reassembly timer for the corresponding packet expires. </t>
+
+<t>There are some implementation strategies which could increase the impact of this attack. For example, upon receipt of a fragment, some systems allocate a memory buffer that will be large enough to reassemble the whole datagram. While this might be beneficial in legitimate cases, this just amplifies the impact of the possible attacks, as a single small fragment could tie up memory buffers for the size of an extremely large (and unlikely) datagram. The implementation strategy suggested in RFC 815 <xref target="RFC0815"/> leads to such an implementation.</t>
+
+<t>The impact of the aforementioned attack may vary depending on some specific implementation details:</t>
+
+<t>
+<list style="symbols">
+<t>If the system does not enforce limits on the amount of memory that can be allocated by the IP module, then an attacker could tie all system memory to fragments, at which point the system would become unusable, probably crashing.</t>
+<t>If the system enforces limits on the amount of memory that can be allocated by the IP module as a whole, then, when this limit is reached, all further IP packets that arrive would be discarded, until some fragments time out and free memory is available again.</t>
+<t>If the system enforces limits on the amount memory that can be allocated for the reassembly of fragments (in addition to enforcing a limit for the IP module as a whole), then, when this limit is reached, all further fragments that arrive would be discarded, until some fragment(s) time out and free memory is available again.</t>
+</list>
+</t>
+</section>
+
+<section title="Problems that arise from the length of the IP Identification field">
+
+<t>The Internet Protocols are currently being used in environments that are quite different from the ones in which they were conceived. For instance, the availability of bandwidth at the time the Internet Protocol was designed was completely different from the availability of bandwidth in today's networks. </t>
+
+<t>The Identification field is a 16-bit field that is used for the fragmentation and reassembly function. In the event a datagram gets fragmented, all the corresponding fragments will share the same Identification number. Thus, the system receiving the fragments will be able to uniquely identify them as fragments that correspond to the same IP datagram. At a given point in time, there must be at most only one packet in the network with a given Identification number. If not, an Identification number "collision" might occur, and the receiving system might end up "mixing" fragments that correspond to different IP datagrams which simply reused the same Identification number.</t>
+
+<t>For each group of fragments whose Identification numbers "collide", the fragment reassembly will lead to corrupted packets. The IP payload of the reassembled datagram will be handed to the corresponding upper layer protocol, where the error will (hopefully) be detected by some error detecting code (such as the TCP checksum) and the packet will be discarded.</t>
+
+<t>An attacker could exploit this fact to intentionally cause a system to discard all or part of the fragmented traffic it gets, thus performing a Denial of Service attack. Such an attacker would simply establish a flow of fragments with different IP Identification numbers, to trash all or part of the IP Identification space. As a result, the receiving system would use the attacker's fragments for the reassembly of legitimate datagrams, leading to corrupted packets which would later (and hopefully) get dropped.</t>
+
+<t>In most cases, use of a long fragment timeout will benefit the attacker, as forged fragments will keep the IP Identification space trashed for a longer period of time.</t>
+</section>
+
+<section title="Problems that arise from the complexity of the reassembly algorithm">
+<t>
+As IP packets can be duplicated by the network, and each packet may take a different path to get to the destination host, fragments may arrive not only out of order and/or duplicated, but also overlapping. This means that the reassembly process can be somewhat complex, with the corresponding implementation being not specifically trivial.</t>
+
+<t><xref target="Shannon2001"/> analyzes the causes and attributes of fragment traffic measured in several types of WANs.</t>
+
+<t>During the years, a number of attacks have exploited bugs in the reassembly function of a number of operating systems, producing buffer overflows that have led, in most cases, to a crash of the attacked system.
+</t>
+</section>
+
+
+<section title="Problems that arise from the ambiguity of the reassembly process">
+
+<t>Network Intrusion Detection Systems (NIDSs) typically monitor the traffic on a given network with the intent of identifying traffic patterns that might indicate network intrusions. </t>
+
+<t>In the presence of IP fragments, in order to detect illegitimate activity at the transport or application layers (i.e., any protocol layer above the network layer), a NIDS must perform IP fragment reassembly.</t>
+
+<t>In order to correctly assess the traffic, the result of the reassembly function performed by the NIDS should be the same as that of the reassembly function performed by the intended recipient of the packets.</t>
+
+<t>However, a number of factors make the result of the reassembly process ambiguous:</t>
+
+<t>
+<list style="symbols">
+<t>The IETF specifications are ambiguous as to what should be done in the event overlapping fragments were received. Thus, in the presence of overlapping data, the system performing the reassembly function is free to either honor the first set of data received, the latest copy received, or any other copy received in between.</t>
+<t>As the specifications do not enforce any specific fragment timeout value, different systems may choose different values for the fragment timeout. This means that given a set of fragments received at some specified time intervals, some systems will reassemble the fragments into a full datagram, while others may timeout the fragments and therefore drop them.</t>
+<t>As mentioned before, as the fragment buffers get full, a Denial of Service (DoS) condition will occur unless some action is taken. Many systems flush part of the fragment buffers when some threshold is reached. Thus, depending on fragment load, timing issues, and flushing policy, a NIDS may get incorrect assumptions about how (and if) fragments are being reassembled by their intended recipient.</t>
+</list>
+</t>
+
+<t>As originally discussed by <xref target="Ptacek1998"/>, these issues can be exploited by attackers to evade intrusion detection systems. </t>
+
+<t>There exist freely available tools to forcefully fragment IP datagrams so as to help evade Intrusion Detection Systems. Frag router <xref target="Song1999"/> is an example of such a tool; it allows an attacker to perform all the evasion techniques described in <xref target="Ptacek1998"/>. Ftester <xref target="Barisani2006"/> is a tool that helps to audit systems regarding fragmentation issues.</t>
+</section>
+
+<section title="Problems that arise from the size of the IP fragments">
+
+<t>One approach to fragment filtering involves keeping track of the results of applying filter rules to the first fragment (i.e., the fragment with a Fragment Offset of 0), and applying them to subsequent fragments of the same packet. The filtering module would maintain a list of packets indexed by the Source Address, Destination Address, Protocol, and Identification number. When the initial fragment is seen, if the MF bit is set, a list item would be allocated to hold the result of filter access checks. When packets with a non-zero Fragment Offset come in, look up the list element with a matching Source Address/Destination Address/Protocol/Identification and apply the stored result (pass or block). When a fragment with a zero MF bit is seen, free the list element. Unfortunately, the rules of this type of packet filter can usually be bypassed. <xref target="RFC1858"/> describes the details of the involved technique.</t>
+</section>
+</section>
+<section title="Possible security improvements">
+
+<section title="Memory allocation for fragment reassembly">
+
+<t>A design choice usually has to be made as to how to allocate memory to reassemble the fragments of a given packet. There are basically two options:</t>
+
+<t>
+<list style="symbols">
+<t>Upon receipt of the first fragment, allocate a buffer that will be large enough to concatenate the payload of each fragment.</t>
+<t>Upon receipt of the first fragment, create the first node of a linked list to which each of the following fragments will be linked. When all fragments have been received, copy the IP payload of each of the fragments (in the correct order) to a separate buffer that will be handed to the protocol being encapsulated in the IP payload.</t>
+</list>
+</t>
+
+<t>While the first of the choices might seem to be the most straight-forward, it implies that even when a single small fragment of a given packet is received, the amount of memory that will be allocated for that fragment will account for the size of the complete IP datagram, thus using more system resources than what is actually needed.</t>
+
+<t>Furthermore, the only situation in which the actual size of the whole datagram will be known is when the last fragment of the packet is received first, as that is the only packet from which the total size of the IP datagram can be asserted. Otherwise, memory should be allocated for largest possible packet size (65535 bytes).</t>
+
+<t>The IP module should also enforce a limit on the amount of memory that can be allocated for IP fragments, as well as a limit on the number of fragments that at any time will be allowed in the system. This will basically limit the resources spent on the reassembly process, and prevent an attacker from trashing the whole system memory.</t>
+
+<t>Furthermore, the IP module should keep a different buffer for IP fragments than for complete IP datagrams. This will basically separate the effects of fragment attacks on non-fragmented traffic. Most TCP/IP implementations, such as that in Linux and those in BSD-derived systems, already implement this.</t>
+
+<t><xref target="Jones2002"/> contains an analysis about the amount of memory that may be needed for the fragment reassembly buffer depending on a number of network characteristics.</t>
+</section>
+
+<section title="Flushing the fragment buffer">
+
+<t>In the case of those attacks that aim to consume the memory buffers used for fragments, and those that aim to cause a collision of IP Identification numbers, there are a number of counter-measures that can be implemented.</t>
+
+<t>The IP module should enforce a limit on the amount of memory that can be allocated for IP fragments, as well as a limit on the number of fragments that at any time will be allowed in the system. This will basically limit the resources spent on the reassembly process, and prevent an attacker from trashing the whole system memory.</t>
+
+<t>Additionally, the IP module should keep a different buffer for IP fragments than for complete IP datagrams. This will basically separate the effects of fragment attacks on non-fragmented traffic. Most TCP/IP implementations, such as that in Linux and those in BSD-derived systems, already implement this.</t>
+
+<t>Even with these counter-measures in place, there is still the issue of what to do when the buffer used for IP fragments get full. Basically, if the fragment buffer is full, no instance of communication that relies on fragmentation will be able to progress.</t>
+
+<t>Unfortunately, there are not many options for reacting to this situation. If nothing is done, all the instances of communication that rely on fragmentation will experience a denial of service. Thus, the only thing that can be done is flush all or part of the fragment buffer, on the premise that legitimate traffic will be able to make use of the freed buffer space to allow communication flows to progress.</t>
+
+<t>There are a number of factors that should be taken into consideration when flushing the fragment buffer. First, if a fragment of a given packet (i.e., fragment with a given Identification number) is flushed, all the other fragments that correspond to the same datagram should be flushed. As in order for a packet to be reassembled all of its fragments must be received by the system performing the reassembly function, flushing only a subset of the fragments of a given packet would keep the corresponding buffers tied to fragments that would never reassemble into a complete datagram. Additionally, care must be taken so that, in the event that subsequent buffer flushes need to be performed, it is not always the same set of fragments that get dropped, as such a behavior would probably cause a selective Denial of Service (DoS) to the traffic flows to which that set of fragments belong.</t>
+
+<t>Many TCP/IP implementations define a threshold for the number of fragments that, when reached, triggers a fragment-buffer flush. Some systems flush 1/2 of the fragment buffer when the threshold is reached. As mentioned before, the idea of flushing the buffer is to create some free space in the fragment buffer, on the premise that this will allow for new and legitimate fragments to be processed by the IP module, thus letting communication survive the overwhelming situation. On the other hand, the idea of flushing a somewhat large portion of the buffer is to avoid flushing always the same set of packets.</t>
+</section>
+
+<section title="A more selective fragment buffer flushing strategy">
+
+<t>One of the difficulties in implementing counter-measures for the fragmentation attacks described in this document is that it is difficult to perform validation checks on the received fragments. For instance, the fragment on which validity checks could be performed, the first fragment, may be not the first fragment to arrive at the destination host.</t>
+
+<t>Fragments can not only arrive out of order because of packet reordering performed by the network, but also because the system (or systems) that fragmented the IP datagram may indeed transmit the fragments out of order. A notable example of this is the Linux TCP/IP stack, which transmits the fragments in reverse order.</t>
+
+<t>This means that we cannot enforce checks on the fragments for which we allocate reassembly resources, as the first fragment we receive for a given packet may be some other fragment than the first one (the one with an Fragment Offset of 0).</t>
+
+<t>However, at the point in which we decide to free some space in the fragment buffer, some refinements can be done to the flushing policy. The first thing we would like to do is to stop different types of traffic from interfering with each other. This means, in principle, that we do not want fragmented UDP traffic to interfere with fragmented TCP traffic. In order to implement this traffic separation for the different protocols, a different fragment buffer would be needed, in principle, for each of the 256 different protocols that can be encapsulated in an IP datagram.</t>
+
+<t>We believe a tradeoff is to implement two separate fragment buffers: one for IP datagrams that encapsulate IPsec packets, and another for the rest of the traffic. This basically means that traffic not protected by IPsec will not interfere with those flows of communication that are being protected by IPsec.</t>
+
+<t>The processing of each of these two different fragment buffers would be completely independent from each other. In the case of the IPsec fragment buffer, when the buffer needs to be flushed, the following refined policy could be applied:</t>
+
+<t>
+<list style="symbols">
+<t>First, for each packet for which the IPsec header has been received, check that the SPI field of the IPsec header corresponds to an existing IPsec Security Association (SA), and probably also check that the IPsec sequence number is valid. If the check fails, drop all the fragments that correspond to this packet.</t>
+<t>Second, if the fragment buffer still needs to be flushed, drop all the fragments that correspond to packets for which the full IPsec header has not yet been received. The number of packets for which this flushing is performed depends on the amount of free space that needs to be created.</t>
+<t>Third, if after flushing packets with invalid IPsec information (First step), and packets on which validation checks could not be performed (Second step), there is still not enough space in the fragment buffer, drop all the fragments that correspond to packets that passed the checks of the first step, until the necessary free space is created.</t>
+</list>
+</t>
+
+<t>The rationale behind this policy is that, at the point of flushing the fragment buffer, we prefer to keep those packets on which we could successfully perform a number of validation checks, over those packets on which those checks failed, or the checks could not even be performed.</t>
+
+<t>By checking both the IPsec SPI and the IPsec sequence number, it is virtually impossible for an attacker that is off-path to perform a Denial of Service attack to communication flows being protected by IPsec.</t>
+
+<t>Unfortunately, some IP implementations (such as that in Linux <xref target="Linux2006"/>), when performing fragmentation, send the corresponding fragments in reverse order. In such cases, at the point of flushing the fragment buffer, legitimate fragments will receive the same treatment as the possible forged fragments.</t>
+
+<t>This refined flushing policy provides an increased level of protection against this type of resource exhaustion attack, while not making the situation of out-of-order IPsec-secured traffic worse than with the simplified flushing policy described in the previous section.</t>
+</section>
+
+<section title="Reducing the fragment timeout">
+
+<t>RFC 1122 <xref target="RFC1122"/> states that the reassembly timeout should be a fixed value between 60 and 120 seconds. The rationale behind these long timeout values is that they should accommodate any path characteristics, such as long-delay paths. However, it must be noted that this timer is really measuring inter-fragment delays, or, more specifically, fragment jitter.</t>
+
+<t>If all fragments take paths of similar characteristics, the inter-fragment delay will usually be, at most, a few seconds. Nevertheless, even if fragments take different paths of different characteristics, the recommended 60 to 120 seconds are, in practice, excessive. </t>
+
+<t>Some systems have already reduced the fragment timeout to 30 seconds <xref target="Linux2006"/>. The fragment timeout could probably be further reduced to approximately 15 seconds; although further research on this issue is necessary.</t>
+
+<t>It should be noted that in network scenarios of long-delay and high-bandwidth (usually referred to as "Long-Fat Networks"), using a long fragment timeout would likely increase the probability of collision of IP ID numbers. Therefore, in such scenarios it is highly desirable to avoid the use of fragmentation with techniques such as PMTUD <xref target="RFC1191"/> or PLPMTUD <xref target="RFC4821"/>.</t>
+</section>
+
+<section title="Counter-measure for some IDS evasion techniques">
+
+<t><xref target="Shankar2003"/> introduces a technique named "Active Mapping" that prevents evasion of a NIDS by acquiring sufficient knowledge about the network being monitored, to assess which packets will arrive at the intended recipient, and how they will be interpreted by it. <xref target="Novak2005"/> describes some techniques that are applied by the Snort NIDS to avoid evasion.</t>
+</section>
+
+<section title="Counter-measure for firewall-rules bypassing">
+
+<t>One of the classical techniques to bypass firewall rules involves sending packets in which the header of the encapsulated protocol is fragmented. Even when it would be legal (as far as the IETF specifications are concerned) to receive such a packets, the MTUs of the network technologies used in practice are not that small to require the header of the encapsulated protocol to be fragmented. Therefore, the system performing reassembly should drop all packets which fragment the upper-layer protocol header, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop). The necessary information to perform this check could be stored by the IP module together with the rest of the upper-layer protocol information.</t>
+
+<t>Additionally, given that many middle-boxes such as firewalls create state according to the contents of the first fragment of a given packet, it is best that, in the event an end-system receives overlapping fragments, it honors the information contained in the fragment that was received first.</t>
+
+<t>RFC 1858 <xref target="RFC1858"/> describes the abuse of IP fragmentation to bypass firewall rules. RFC 3128 <xref target="RFC3128"/> corrects some errors in RFC 1858.</t>
+</section>
+</section>
+</section>
+
+<section title="Forwarding">
+<section title="Precedence-ordered queue service">
+
+<t>Section 5.3.3.1 of RFC 1812 <xref target="RFC1812"/> states that routers should implement precedence-ordered queue service. This means that when a packet is selected for output on a (logical) link, the packet of highest precedence that has been queued for that link is sent. Section 5.3.3.2 of RFC 1812 advices routers to default to maintaining strict precedence-ordered service.</t>
+
+<t>Unfortunately, given that it is trivial to forge the IP precedence field of the IP header, an attacker could simply forge a high precedence number in the packets it sends, to illegitimately get better network service. If precedence-ordered queued service is not required in a particular network infrastructure, it should be disabled, and thus all packets would receive the same type of service, despite the values in their Type of Service or Differentiated Services fields.</t>
+
+<t>When Precedence-ordered queue service is required in the network infrastructure, in order to mitigate the attack vector discussed in the previous paragraph, edge routers or switches should be configured to police and remark the Type of Service or Differentiated Services values, according to the type of service at which each end-system has been allowed to send packets.</t>
+
+<t>Bullet 4 of Section 5.3.3.3 of RFC 1812 states that routers "MUST NOT change precedence settings on packets it did not originate". However, given the security implications of the Precedence field, it is fair for routers, switches or other middle-boxes, particularly those in the network edge, to overwrite the Type of Service (or Differentiated Services) field of the packets they are forwarding, according to a configured network policy.</t>
+
+<t>Section 5.3.3.1 and Section 5.3.6 of RFC 1812 states that if precedence-ordered queue service is implemented and enabled, the router "MUST NOT discard a packet whose precedence is higher than that of a packet that is not discarded". While this recommendation makes sense given the semantics of the Precedence field, it is important to note that it would be simple for an attacker to send packets with forged high Precedence value to congest some internet router(s), and cause all (or most) traffic with a lower Precedence value to be discarded.</t>
+</section>
+
+<section title="Weak Type of Service">
+
+<t>Section 5.2.4.3 of RFC 1812 describes the algorithm for determining the next-hop address (i.e., the forwarding algorithm). Bullet 3, "Weak TOS", addresses the case in which routes contain a "type of service" attribute. It states that in case a packet contains a non-default TOS (i.e., 0000), only routes with the same TOS or with the default TOS should be considered for forwarding that packet. However, this means that among the longest match routes for a given in packet are routes with some TOS other than the one contained in the received packet, and no routes with the default TOS, the corresponding packet would be dropped. This may or may not be a desired behavior.</t>
+
+<t>An alternative to this would be to, in the case among the "longest match" routes there are only routes with non-default type of services which do not match the TOS contained in the received packet, to use a route with any other TOS. While this route would most likely not be able to address the type of service requested by packet, it would, at least, provide a "best effort" service.</t>
+
+<t>It must be noted that Section 5.3.2 of RFC 1812 allows for routers for not honoring the TOS field. Therefore, the proposed alternative behavior is still compliant with the IETF specifications.</t>
+
+<t>
+<list style="hanging">
+<t>While officially specified in the RFC series, TOS-based routing is not widely deployed in the Internet.</t>
+</list>
+</t>
+
+</section>
+
+<section title="Address Resolution">
+
+<t>
+In the case of broadcast link-layer technologies, in order for a system to transfer an IP datagram it must usually first map an IP address to the corresponding link-layer address (for example, by means of the ARP protocol <xref target="RFC0826"/>) . This means that while this operation is being performed, the packets that would require such a mapping would need to be kept in memory. This may happen both in the case of hosts and in the case of routers.</t>
+
+<t>This situation might be exploited by an attacker, which could send a large amount of packets to a non-existent host which would supposedly be directly connected to the attacked router. While trying to map the corresponding IP address into a link-layer address, the attacked router would keep in memory all the packets that would need to make use of that link-layer address. At the point in which the mapping function times out, depending on the policy implemented by the attacked router, only the packet that triggered the call to the mapping function might be dropped. In that case, the same operation would be repeated for every packet destined to the non-existent host. Depending on the timeout value for the mapping function, this situation might lead to the router buffers to run out of free space, with the consequence that incoming legitimate packets would have to be dropped, or that legitimate packets already stored in the router's buffers might get dropped. Both of these situations would lead either to a complete Denial of Service, or to a degradation of the network service.</t>
+
+<t>One counter-measure to this problem would be to drop, at the point the mapping function times out all the packets destined to the address that timed out. In addition, a "negative cache entry" might be kept in the module performing the matching function, so that for some amount of time, the mapping function would return an error when the IP module requests to perform a mapping for some address for which the mapping has recently timed out.</t>
+
+<t>
+<list style="hanging">
+<t>A common implementation strategy for routers is that when a packet is received that requires an ARP request to be performed before the packet can be forwarded, the packet is dropped and the router is then engaged in the ARP procedure. </t>
+</list>
+</t>
+</section>
+
+<section title="Dropping packets">
+
+<t>In some scenarios, it may be necessary for a host or router to drop packets from the output queue. In the event one of such packets happens to be an IP fragment, and there were other fragments of the same packet in the queue, those other fragments should also be dropped. The rationale for this policy is that it is nonsensical to spend system resources on those other fragments, because, as long as one fragment is missing, it will be impossible for the receiving system to reassemble them into a complete IP datagram.</t>
+
+<t>Some systems have been known to drop just a subset of fragments of a given datagram, leading to a denial of service condition, as only a subset of all the fragments of the packets were actually transferred to the next hop.</t>
+</section>
+</section>
+
+<section title="Addressing">
+<section title="Unreachable addresses">
+<t>
+It is important to understand that while there are some addresses that are supposed to be unreachable from the public Internet (such as those described in RFC 1918 <xref target="RFC1918"/>, or the "loopback" address), there are a number of tricks an attacker can perform to reach those IP addresses that would otherwise be unreachable (e.g., exploit the LSRR or SSRR IP options). Therefore, when applicable, packet filtering should be performed at organizational network boundary to assure that those addresses will be unreachable.
+</t>
+<t><xref target="RFC5735"/> provides a summary of special use IPv4 addresses.</t>
+
+</section>
+<section title="Private address space">
+<t>
+The Internet Assigned Numbers Authority (IANA) has reserved the following three blocks of the IP address space for private internets:
+</t>
+
+<t>
+<list style="symbols">
+<t>10.0.0.0 - 10.255.255.255 (10/8 prefix)</t>
+<t>172.16.0.0 - 172.31.255.255 (172.16/12 prefix)</t>
+<t>192.168.0.0 - 192.168.255.255 (192.168/16 prefix)</t>
+</list>
+</t>
+
+<t>Use of these address blocks is described in RFC 1918 <xref target="RFC1918"/>.</t>
+
+<t>Where applicable, packet filtering should be performed at the organizational perimeter to assure that these addresses are not reachable from outside the enterprise network.</t>
+</section>
+
+
+
+
+
+
+<section title="Class D addresses (224/4 address block)">
+
+<t>The Class D addresses correspond to the 224/4 address block, and are used for Internet multicast. Therefore, if a packet is received with a Class D address as the Source Address, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop). Additionally, if an IP packet with a multicast Destination Address is received for a connection-oriented protocol (e.g., TCP), the packet should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+</section>
+
+<section title="Class E addresses (240/4 address block)">
+
+<t>The Class E addresses correspond to the 240/4 address block, and are currently reserved for experimental use. As a result, a number of implementations discard packets that contain a Class E address as the Source Address or Destination Address.</t>
+
+<t>However, there exists ongoing work to reclassify the Class E (240/4) address block as usable unicast address spaces <xref target="Fuller2008a"/> <xref target="I-D.fuller-240space"/> <xref target="I-D.wilson-class-e"/>. Therefore, we recommend implementations to accept addresses in the 240/4 block as valid addresses for the Source Address and Destination Address.</t>
+
+<t>It should be noted that the broadcast address 255.255.255.255 still must be treated as indicated in Section 4.3.7 of this document.</t>
+</section>
+
+<section title="Broadcast and multicast addresses, and connection-oriented protocols">
+
+<t>For connection-oriented protocols, such as TCP, shared state is maintained between only two endpoints at a time. Therefore, if an IP packet with a multicast (or broadcast) Destination Address is received for a connection-oriented protocol (e.g., TCP), the packet should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+</section>
+
+<section title="Broadcast and network addresses">
+
+<t>Originally, the IETF specifications did not permit IP addresses to have the value 0 or -1 for any of the Host number, network number, or subnet number fields, except for the cases indicated in Section 4.3.7. However, this changed fundamentally with the deployment of Classless Inter-Domain Routing (CIDR) <xref target="RFC4632"/>, as with CIDR a system cannot know a priori what the subnet mask is for a particular IP address.</t>
+
+<t>Many systems now allow administrators to use the values 0 or -1 for those fields. Despite that according to the IETF specifications these addresses are illegal, modern IP implementations should consider these addresses to be valid.</t>
+</section>
+
+<section title="Special Internet addresses">
+
+<t>RFC 1812 <xref target="RFC1812"/> discusses the use of some special internet addresses, which is of interest to perform some sanity checks on the Source Address and Destination Address fields of an IP packet. It uses the following notation for an IP address:</t>
+
+<t>{ &lt;Network-prefix&gt;, &lt;Host-number&gt; }</t>
+
+<t>
+<list style="hanging">
+<t>RFC 1122 <xref target="RFC1122"/> contained a similar discussion of special internet addresses, including some of the form { &lt;Network-prefix&gt;, &lt;Subnet-number&gt;, &lt;Host-number&gt; }. However, as explained in Section 4.2.2.11 of RFC 1812, in a CIDR world, the subnet number is clearly an extension of the network prefix and cannot be interpreted without the remainder of the prefix.</t>
+</list>
+</t>
+
+<t>{0, 0}</t>
+
+<t>This address means "this host on this network". It is meant to be used only during the initialization procedure, by which the host learns its own IP address.</t>
+<t>If a packet is received with 0.0.0.0 as the Source Address for any purpose other than bootstrapping, the corresponding packet should be silently dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop). If a packet is received with 0.0.0.0 as the Destination Address, it should be silently dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>{0, Host number}</t>
+
+<t>This address means "the specified host, in this network". As in the previous case, it is meant to be used only during the initialization procedure by which the host learns its own IP address. If a packet is received with such an address as the Source Address for any purpose other than bootstrapping, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop). If a packet is received with such an address as the Destination Address, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>{-1, -1}</t>
+
+<t>This address is the local broadcast address. It should not be used as a source IP address. If a packet is received with 255.255.255.255 as the Source Address, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>
+<list style="hanging">
+<t>Some systems, when receiving an ICMP echo request, for example, will use the Destination Address in the ICMP echo request packet as the Source Address of the response they send (in this case, an ICMP echo reply). Thus, when such systems receive a request sent to a broadcast address, the Source Address of the response will contain a broadcast address. This should be considered a bug, rather than a malicious use of the limited broadcast address. </t>
+</list>
+</t>
+
+<t>{Network number, -1}</t>
+
+<t>This is the directed broadcast to the specified network. As recommended by RFC 2644 <xref target="RFC2644"/>, routers should not forward network-directed broadcasts. This avoids the corresponding network from being utilized as, for example, a "smurf amplifier" <xref target="CERT1998a"/>. </t>
+
+<t>As noted in Section 4.3.6 of this document, many systems now allow administrators to configure these addresses as unicast addresses for network interfaces. In such scenarios, routers should forward these addresses as if they were traditional unicast addresses.</t>
+
+<t>In some scenarios a host may have knowledge about a particular IP address being a network-directed broadcast address, rather than a unicast address (e.g., that IP address is configured on the local system as a "broadcast address"). In such scenarios, if a system can infer the Source Address of a received packet is a network-directed broadcast address, the packet should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop). </t>
+
+<t>As noted in Section 4.3.6 of this document, with the deployment of CIDR <xref target="RFC4632"/>, it may be difficult for a system to infer whether a particular IP address that does not belong to a directly attached subnet is a broadcast address.</t>
+
+<t>{127, any}</t>
+
+<t>This is the internal host loopback address. Any packet that arrives on any physical interface containing this address as the Source Address, the Destination Address, or as part of a source route (either LSRR or SSRR), should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>For example, packets with a Destination Address in the 127.0.0.0/8 address block that are received on an interface other than loopback should be silently dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop). Packets received on any interface other than loopback with a Source Address corresponding to the system receiving the packet should also be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+</section>
+</section>
+</section>
+<section title="Security Considerations">
+<t>
+This document discusses the security implications of the Internet Protocol (IP), and discusses a number of implementation strategies that help to mitigate a number of vulnerabilities found in the protocol during the last 25 years or so.
+</t>
+</section>
+
+
+<section title="Acknowledgements">
+<t>The author would like to thank Alfred Hoenes, Joel Jaeggli, Bruno Rohee, and Andrew Yourtchenko for providing valuable comments on earlier versions of this document.</t>
+
+<t>This document was written by Fernando Gont on behalf of the UK CPNI (United Kingdom's Centre for the Protection of National Infrastructure), and is heavily based on the &quot;Security Assessment of the Internet Protocol&quot; <xref target="CPNI2008"/> published by the UK Centre for the Protection of National Infrastructure (CPNI).</t>
+
+<t>
+The author would like to thank Randall Atkinson, John Day, Juan Fraschini, Roque Gagliano, Guillermo Gont, Martin Marino, Pekka Savola, and Christos Zoulas for providing valuable comments on earlier versions of <xref target="CPNI2008"/>, on which this document is based.</t>
+<t>
+The author would like to thank Randall Atkinson and Roque Gagliano, who generously answered a number of questions.
+</t>
+<t>
+Finally, the author would like to thank UK CPNI (formerly NISCC) for their continued support.</t>
+</section>
+
+</middle>
+
+<back>
+<references title="Normative References">
+	<?rfc include="reference.RFC.0791" ?>
+	<?rfc include="reference.RFC.0826" ?>
+	<?rfc include="reference.RFC.1038" ?>
+	<?rfc include="reference.RFC.1063" ?>
+
+	<?rfc include="reference.RFC.1108" ?>
+	<?rfc include="reference.RFC.1112" ?>
+	<?rfc include="reference.RFC.1122" ?>
+	<?rfc include="reference.RFC.1191" ?>
+
+	<?rfc include="reference.RFC.1349" ?>
+	<?rfc include="reference.RFC.1393" ?>
+
+
+	<?rfc include="reference.RFC.1770" ?>
+
+	<?rfc include="reference.RFC.1812" ?>
+
+	<?rfc include="reference.RFC.2113" ?>
+	<?rfc include="reference.RFC.2474" ?>
+
+	<?rfc include="reference.RFC.2475" ?>
+	<?rfc include="reference.RFC.2644" ?>
+	<?rfc include="reference.RFC.3927" ?>
+	<?rfc include="reference.RFC.4821" ?>
+	<?rfc include="reference.RFC.5735" ?>
+
+</references>
+
+<references title="Informative References">
+	<?rfc include="reference.RFC.0815" ?>
+	<?rfc include="reference.RFC.1858" ?>
+	<?rfc include="reference.RFC.1918" ?>
+
+	<?rfc include="reference.RFC.2544" ?>
+	<?rfc include="reference.RFC.2827" ?>
+	<?rfc include="reference.RFC.3056" ?>
+	<?rfc include="reference.RFC.3128" ?>
+	<?rfc include="reference.RFC.3168" ?>
+	<?rfc include="reference.RFC.3530" ?>
+
+	<?rfc include="reference.RFC.3704" ?>
+	<?rfc include="reference.RFC.4459" ?>
+
+	<?rfc include="reference.RFC.4632" ?>
+	<?rfc include="reference.RFC.4963" ?>
+
+	<?rfc include="reference.RFC.4987" ?>
+	<?rfc include="reference.RFC.5082" ?>
+	<?rfc include="reference.RFC.5570" ?>
+
+	<?rfc include="reference.I-D.ietf-tcpm-icmp-attacks" ?>
+	<?rfc include="reference.I-D.fuller-240space" ?>
+
+	<?rfc include="reference.I-D.templin-mtuassurance" ?>
+	<?rfc include="reference.I-D.wilson-class-e" ?>
+
+	<reference anchor="Watson2004">
+		<front>
+			<title>Slipping in the Window: TCP Reset Attacks</title>
+			<author initials="P.A." surname="Watson" fullname="Paul A. Watson">
+				<organization></organization>
+			</author>
+			<date year="2004"/>
+		</front>
+		<seriesInfo name="2004 CanSecWest Conference" value=""/>
+	</reference>
+
+
+	<reference anchor="Anderson2001">
+		<front>
+			<title>An Analysis of Fragmentation Attacks</title>
+			<author initials="J." surname="Anderson" fullname="J. Anderson">
+				<organization></organization>
+			</author>
+			<date year="2001"/>
+		</front>
+		<seriesInfo name="Available at: http://www.ouah.org/fragma.html" value=""/>
+	</reference>
+
+	<reference anchor="Arkin2000">
+		<front>
+			<title>IP TTL Field Value with ICMP (Oops - Identifying Windows 2000 again and more)</title>
+			<author initials="" surname="Arkin" fullname="Ofir Arkin">
+				<organization></organization>
+			</author>
+			<date year="2000"/>
+		</front>
+		<seriesInfo name="" value="http://ofirarkin.files.wordpress.com/2008/11/ofirarkin2000-06.pdf"/>
+	</reference>
+
+	<reference anchor="CIPSO1992">
+		<front>
+			<title>COMMERCIAL IP SECURITY OPTION (CIPSO 2.2)</title>
+			<author initials="" surname="CIPSO" fullname="CIPSO">
+				<organization></organization>
+			</author>
+			<date year="1992"/>
+		</front>
+		<seriesInfo name="IETF Internet-Draft (draft-ietf-cipso-ipsecurity-01.txt), work in progress" value=""/>
+	</reference>
+
+	<reference anchor="Barisani2006">
+		<front>
+			<title>FTester - Firewall and IDS testing tool</title>
+			<author initials="A." surname="Barisani" fullname="A. Barisani">
+				<organization></organization>
+			</author>
+			<date year="2001"/>
+		</front>
+		<seriesInfo name="Available at: http://dev.inversepath.com/trac/ftester" value=""/>
+	</reference>
+
+
+	<reference anchor="Bellovin1989">
+		<front>
+			<title>Security Problems in the TCP/IP Protocol Suite</title>
+			<author initials="S. M." surname="Bellovin" fullname= "Bellovin, S. M.">
+				<organization></organization>
+			</author>
+			<date year="1989"/>
+		</front>
+		<seriesInfo name="Computer Communication Review" value="Vol. 19, No. 2, pp. 32-48"/>
+	</reference>
+
+	<reference anchor="Bellovin2002">
+		<front>
+			<title>A Technique for Counting NATted Hosts</title>
+			<author initials="S. M." surname="Bellovin" fullname= "Bellovin, S. M.">
+				<organization></organization>
+			</author>
+			<date year="2002"/>
+		</front>
+		<seriesInfo name="IMW'02" value="Nov. 6-8, 2002, Marseille, France"/>
+	</reference>
+
+	<reference anchor="Bendi1998">
+		<front>
+			<title>Boink exploit</title>
+			<author initials="" surname="Bendi" fullname="Bendi">
+				<organization></organization>
+			</author>
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="http://www.insecure.org/sploits/95.NT.fragmentation.bonk.html" value=""/>
+	</reference>
+
+
+	<reference anchor="Biondi2007">
+		<front>
+			<title>IPv6 Routing Header Security</title>
+			<author initials="P." surname="Biondi" fullname= "P. Biondi">
+				<organization></organization>
+			</author>
+			<author initials="A." surname="Ebalard" fullname= "A. Ebalard">
+				<organization></organization>
+			</author>
+
+			<date year="2007"/>
+		</front>
+		<seriesInfo name="CanSecWest 2007 Security Conference" value="http://www.secdev.org/conf/IPv6_RH_security-csw07.pdf"/>
+	</reference>
+
+	<reference anchor="Cerf1974">
+		<front>
+			<title>A Protocol for Packet Network Intercommunication</title>
+			<author initials="V." surname="Cerf" fullname= "V. Cerf">
+				<organization></organization>
+			</author>
+			<author initials="R." surname="Kahn" fullname= "R. Kahn">
+				<organization></organization>
+			</author>
+
+			<date year="1974"/>
+		</front>
+		<seriesInfo name="IEEE Transactions on Communications" value="Vol. 22, No. 5, May 1974, pp. 637-648"/>
+	</reference>
+
+
+
+	<reference anchor="CERT1996a">
+		<front>
+			<title>CERT Advisory CA-1996-01: UDP Port Denial-of-Service Attack</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="1996"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-1996-01.html"/>
+	</reference>
+
+	<reference anchor="CERT1996b">
+		<front>
+			<title>CERT Advisory CA-1996-21: TCP SYN Flooding and IP Spoofing Attacks</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="1996"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-1996-21.html"/>
+	</reference>
+
+	<reference anchor="CERT1996c">
+		<front>
+			<title>CERT Advisory CA-1996-26: Denial-of-Service Attack via ping</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="1996"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-1996-26.html"/>
+	</reference>
+
+	<reference anchor="CERT1997">
+		<front>
+			<title>CERT Advisory CA-1997-28: IP Denial-of-Service Attacks</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="1997"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-1997-28.html"/>
+	</reference>
+
+	<reference anchor="CERT1998a">
+		<front>
+			<title>CERT Advisory CA-1998-01: Smurf IP Denial-of-Service Attacks</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-1998-01.html"/>
+	</reference>
+
+	<reference anchor="CERT1998b">
+		<front>
+			<title>CERT Advisory CA-1998-13: Vulnerability in Certain TCP/IP Implementations</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-1998-13.html"/>
+	</reference>
+
+	<reference anchor="CERT1999">
+		<front>
+			<title>CERT Advisory CA-1999-17: Denial-of-Service Tools</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="1999"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-1999-17.html"/>
+	</reference>
+
+	<reference anchor="CERT2001">
+		<front>
+			<title>CERT Advisory CA-2001-09: Statistical Weaknesses in TCP/IP Initial Sequence Numbers</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="2001"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-2001-09.html"/>
+	</reference>
+
+	<reference anchor="CERT2003">
+		<front>
+			<title>CERT Advisory CA-2003-15 Cisco IOS Interface Blocked by IPv4 Packet</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="2003"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-2003-15.html"/>
+	</reference>
+
+	<reference anchor="CIPSOWG1994">
+		<front>
+			<title>Commercial Internet Protocol Security Option (CIPSO) Working Group</title>
+			<author initials="" surname="CIPSOWG" fullname="CIPSOWG">
+				<organization></organization>
+			</author>
+			<date year="1994"/>
+		</front>
+		<seriesInfo name="" value="http://www.ietf.org/proceedings/94jul/charters/cipso-charter.html"/>
+	</reference>
+
+
+	<reference anchor="Cisco2003">
+		<front>
+			<title>Cisco Security Advisory: Cisco IOS Interface Blocked by IPv4 packet</title>
+			<author initials="" surname="Cisco" fullname="Cisco">
+				<organization></organization>
+			</author>
+			<date year="2003"/>
+		</front>
+		<seriesInfo name="" value="http://www.cisco.com/en/US/products/products_security_advisory09186a00801a34c2.shtml"/>
+	</reference>
+
+	<reference anchor="Cisco2008">
+		<front>
+			<title>Cisco IOS Security Configuration Guide, Release 12.2</title>
+			<author initials="" surname="Cisco" fullname="Cisco">
+				<organization></organization>
+			</author>
+			<date year="2003"/>
+		</front>
+		<seriesInfo name="" value="http://www.cisco.com/en/US/docs/ios/12_2/security/configuration/guide/scfipso.html"/>
+	</reference>
+
+	<reference anchor="Clark1988">
+		<front>
+			<title>The Design Philosophy of the DARPA Internet Protocols</title>
+			<author initials="D. D." surname="Clark" fullname= "David D. Clark">
+				<organization></organization>
+			</author>
+			<date year="1988"/>
+		</front>
+		<seriesInfo name="Computer Communication Review" value="Vol. 18, No. 4"/>
+	</reference>
+
+	<reference anchor="daemon91996">
+		<front>
+			<title>IP-spoofing Demystified (Trust-Relationship Exploitation)</title>
+			<author initials="" surname="daemon9" fullname= "daemon9">
+				<organization></organization>
+			</author>
+			<author initials="" surname="route" fullname= "route">
+				<organization></organization>
+			</author>
+			<author initials="" surname="infinity" fullname= "infinity">
+				<organization></organization>
+			</author>
+
+			<date year="1988"/>
+		</front>
+		<seriesInfo name="Phrack Magazine, Volume Seven, Issue Forty-Eight, File 14 of 18" value="http://www.phrack.org/phrack/48/P48-14 "/>
+	</reference>
+
+	<reference anchor="Ed3f2002">
+		<front>
+			<title>Firewall spotting and networks analisys with a broken CRC</title>
+			<author initials="" surname="Ed3f" fullname= "Ed3f">
+				<organization></organization>
+			</author>
+
+			<date year="2002"/>
+		</front>
+		<seriesInfo name="Phrack Magazine, Volume 0x0b, Issue 0x3c, Phile #0x0c of 0x10" value="http://www.phrack.org/issues.html?issue=60&amp;id=12&amp;mode=txt"/>
+	</reference>
+
+	<reference anchor="FIPS1994">
+		<front>
+			<title>Standard Security Label for Information Transfer</title>
+			<author initials="" surname="FIPS" fullname= "FIPS">
+				<organization></organization>
+			</author>
+
+			<date year="1994"/>
+		</front>
+		<seriesInfo name="Federal Information Processing Standards Publication. FIP PUBS 188" value="http://csrc.nist.gov/publications/fips/fips188/fips188.pdf"/>
+	</reference>
+
+
+	<reference anchor="Fuller2008a">
+		<front>
+			<title>240.0.0.0/4: The Future Begins Now</title>
+			<author initials="V." surname="Fuller" fullname= "V. Fuller">
+				<organization></organization>
+			</author>
+
+			<author initials="E." surname="Lear" fullname= "E. Lear">
+				<organization></organization>
+			</author>
+
+			<author initials="D." surname="Meyer" fullname= "D. Meyer">
+				<organization></organization>
+			</author>
+
+			<date year="2008"/>
+		</front>
+		<seriesInfo name="Routing SIG Meeting, 25th APNIC Open Policy Meeting, February 25 - 29 2008, Taipei, Taiwan" value="http://www.apnic.net/meetings/25/program/routing/fuller-240-future.pdf"/>
+	</reference>
+
+	<reference anchor="Fyodor2004">
+		<front>
+			<title>Idle scanning and related IP ID games</title>
+			<author initials="" surname="Fyodor" fullname="Fyodor">
+				<organization></organization>
+			</author>
+			<date year="2004"/>
+		</front>
+		<seriesInfo name="" value="http://www.insecure.org/nmap/idlescan.html"/>
+	</reference>
+
+	<reference anchor="GIAC2000">
+		<front>
+			<title>Egress Filtering v 0.2</title>
+			<author initials="" surname="GIAC" fullname="GIAC">
+				<organization></organization>
+			</author>
+			<date year="2000"/>
+		</front>
+		<seriesInfo name="" value="http://www.sans.org/y2k/egress.htm"/>
+	</reference>
+
+
+	<reference anchor="Gont2006">
+		<front>
+			<title>Advanced ICMP packet filtering</title>
+			<author initials="F.G." surname="Gont" fullname="Fernando Gont">
+				<organization></organization>
+			</author>
+			<date year="2006"/>
+		</front>
+		<seriesInfo name="" value="http://www.gont.com.ar/papers/icmp-filtering.html"/>
+	</reference>
+
+
+	<reference anchor="Haddad2004">
+		<front>
+			<title>Security Distribution for Linux Clusters</title>
+			<author initials="I." surname="Haddad" fullname="Haddad">
+				<organization></organization>
+			</author>
+			<author initials="M." surname="Zakrzewski" fullname="Zakrzewski">
+				<organization></organization>
+			</author>
+			<date year="2004"/>
+		</front>
+		<seriesInfo name="Linux Journal" value="http://www.linuxjournal.com/article/6943"/>
+	</reference>
+
+
+
+	<reference anchor="Humble1998">
+		<front>
+			<title>Nestea exploit</title>
+			<author initials="F.G." surname="Gont" fullname="Fernando Gont">
+				<organization></organization>
+			</author>
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="" value="http://www.insecure.org/sploits/linux.PalmOS.nestea.html"/>
+	</reference>
+
+
+
+
+
+	<reference anchor="IANA2006a">
+		<front>
+			<title>http://www.iana.org/assignments/ethernet-numbers</title>
+			<author initials="" surname="Ether Types" fullname="Ether Types">
+				<organization></organization>
+			</author>
+			<date year=""/>
+		</front>
+	</reference>
+
+
+	<reference anchor="IANA2006b">
+		<front>
+			<title>http://www.iana.org/assignments/ip-parameters</title>
+			<author initials="" surname="IP Parameters" fullname="IP Parameters">
+				<organization></organization>
+			</author>
+			<date year=""/>
+		</front>
+	</reference>
+
+
+	<reference anchor="IANA2006c">
+		<front>
+			<title>http://www.iana.org/assignments/protocol-numbers</title>
+			<author initials="" surname="Protocol Numbers" fullname="Protocol Numbers">
+				<organization></organization>
+			</author>
+			<date year=""/>
+		</front>
+	</reference>
+
+	<reference anchor="IRIX2008">
+		<front>
+			<title>IRIX 6.5 trusted_networking(7) manual page</title>
+			<author initials="" surname="IRIX" fullname="IRIX">
+				<organization></organization>
+			</author>
+			<date year="2008"/>
+		</front>
+		<seriesInfo name="" value="http://techpubs.sgi.com/library/tpl/cgi-bin/getdoc.cgi?coll=0650&db=man&fname=/usr/share/catman/a_man/cat7/trusted_networking.z"/>
+	</reference>
+
+	<reference anchor="Jones2002">
+		<front>
+			<title>A Method Of Selecting Values For the Parameters Controlling IP Fragment Reassembly</title>
+			<author initials="R." surname="Jones" fullname="R. Jones">
+				<organization></organization>
+			</author>
+			<date year="2002"/>
+		</front>
+		<seriesInfo name="" value="ftp://ftp.cup.hp.com/dist/networking/briefs/ip_reass_tuning.txt"/>
+	</reference>
+
+	<reference anchor="Kenney1996">
+		<front>
+			<title>The Ping of Death Page</title>
+			<author initials="M." surname="Kenney" fullname="M. Kenney">
+				<organization></organization>
+			</author>
+			<date year="1996"/>
+		</front>
+		<seriesInfo name="" value="http://www.insecure.org/sploits/ping-o-death.html"/>
+	</reference>
+
+	<reference anchor="Kent1987">
+		<front>
+			<title>Fragmentation considered harmful</title>
+			<author initials="C." surname="Kent" fullname="C. Kent">
+				<organization></organization>
+			</author>
+			<author initials="J." surname="Mogul" fullname="J. Mogul">
+				<organization></organization>
+			</author>
+
+			<date year="1987"/>
+		</front>
+		<seriesInfo name="Proc. SIGCOMM '87" value="Vol. 17, No. 5, October 1987"/>
+	</reference>
+
+	<reference anchor="Klein2007">
+		<front>
+			<title>OpenBSD DNS Cache Poisoning and Multiple O/S Predictable IP ID Vulnerability</title>
+			<author initials="A." surname="Klein" fullname="Amit Klein">
+				<organization></organization>
+			</author>
+			<date year="2007"/>
+		</front>
+		<seriesInfo name="" value="http://www.trusteer.com/files/OpenBSD_DNS_Cache_Poisoning_and_Multiple_OS_Predictable_IP_ID_Vulnerability.pdf"/>
+	</reference>
+
+	<reference anchor="Kohno2005">
+		<front>
+			<title>Remote Physical Device Fingerprinting</title>
+			<author initials="T." surname="Kohno" fullname="T. Kohno">
+				<organization></organization>
+			</author>
+			<author initials="A." surname="Broido" fullname="A. Broido">
+				<organization></organization>
+			</author>
+			<author initials="kc" surname="Claffy" fullname="kc Claffy">
+				<organization></organization>
+			</author>
+
+			<date year="2005"/>
+		</front>
+		<seriesInfo name="IEEE Transactions on Dependable and Secure Computing" value="Vol. 2, No. 2"/>
+	</reference>
+
+	<reference anchor="LBNL2006">
+		<front>
+			<title>arpwatch tool</title>
+			<author initials="" surname="LBNL/NRG" fullname="LBNL/NRG">
+				<organization></organization>
+			</author>
+			<date year="2006"/>
+		</front>
+		<seriesInfo name="" value="http://ee.lbl.gov/"/>
+	</reference>
+
+
+
+	<reference anchor="Linux2006">
+		<front>
+			<title>http://www.kernel.org</title>
+			<author initials="" surname="The Linux Project" fullname="The Linux Kernel web site">
+				<organization></organization>
+			</author>
+			<date year=""/>
+		</front>
+	</reference>
+
+
+	<reference anchor="Microsoft1999">
+		<front>
+			<title>Microsoft Security Program: Microsoft Security Bulletin (MS99-038). Patch Available for "Spoofed Route Pointer" Vulnerability</title>
+			<author initials="" surname="Microsoft" fullname="Microsoft">
+				<organization></organization>
+			</author>
+			<date year="1999"/>
+		</front>
+		<seriesInfo name="" value="http://www.microsoft.com/technet/security/bulletin/ms99-038.mspx"/>
+	</reference>
+
+
+
+
+	<reference anchor="NISCC2004">
+		<front>
+			<title>NISCC Vulnerability Advisory 236929: Vulnerability Issues in TCP</title>
+			<author initials="" surname="NISCC" fullname="National Infrastructure Security Co-ordination Centre">
+				<organization></organization>
+			</author>
+			<date year="2004"/>
+		</front>
+		<seriesInfo name="" value="http://www.uniras.gov.uk/niscc/docs/re-20040420-00391.pdf"/>
+	</reference>
+
+
+
+	<reference anchor="NISCC2005">
+		<front>
+			<title>NISCC Vulnerability Advisory 532967/NISCC/ICMP: Vulnerability Issues in ICMP packets with TCP payloads</title>
+			<author initials="" surname="NISCC" fullname="National Infrastructure Security Co-ordination Centre">
+				<organization></organization>
+			</author>
+			<date year="2005"/>
+		</front>
+		<seriesInfo name="" value="http://www.niscc.gov.uk/niscc/docs/re-20050412-00303.pdf"/>
+	</reference>
+
+	<reference anchor="NISCC2006">
+		<front>
+			<title>NISCC Technical Note 01/2006: Egress and Ingress Filtering</title>
+			<author initials="" surname="NISCC" fullname="National Infrastructure Security Co-ordination Centre">
+				<organization></organization>
+			</author>
+			<date year="2006"/>
+		</front>
+		<seriesInfo name="" value="http://www.niscc.gov.uk/niscc/docs/re-20060420-00294.pdf?lang=en"/>
+	</reference>
+
+	<reference anchor="CPNI2008">
+		<front>
+			<title>Security Assessment of the Internet Protocol</title>
+			<author initials="F." surname="Gont" fullname="Fernando Gont">
+				<organization>Centre for the Protection of National Infrastructure</organization>
+			</author>
+			<date year="2008"/>
+		</front>
+		<seriesInfo name="" value="http://www.cpni.gov.uk/Docs/InternetProtocol.pdf"/>
+	</reference>
+
+	<reference anchor="Northcutt2000">
+		<front>
+			<title>Network Intrusion Detection - An Analyst's Handbook</title>
+			<author initials="S." surname="Northcut" fullname="Stephen Northcutt">
+				<organization></organization>
+			</author>
+			<author initials="" surname="Novak" fullname="J. Novak">
+				<organization></organization>
+			</author>
+
+			<date year="2000"/>
+		</front>
+		<seriesInfo name="Second Edition" value="New Riders Publishing"/>
+	</reference>
+
+	<reference anchor="Novak2005">
+		<front>
+			<title>Target-Based Fragmentation Reassembly</title>
+			<author initials="" surname="Novak" fullname="J. Novak">
+				<organization></organization>
+			</author>
+			<date year="2005"/>
+		</front>
+		<seriesInfo name="" value="http://www.snort.org/reg/docs/target_based_frag.pdf"/>
+	</reference>
+
+
+	<reference anchor="OpenBSD1998">
+		<front>
+			<title>OpenBSD Security Advisory: IP Source Routing Problem</title>
+			<author initials="" surname="OpenBSD" fullname="OpenBSD">
+				<organization></organization>
+			</author>
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="" value="http://www.openbsd.org/advisories/sourceroute.txt"/>
+	</reference>
+
+
+	<reference anchor="Paxson2001">
+		<front>
+			<title>Network Intrusion Detection: Evasion, Traffic Normalization, and End-to-End Protocol Semantics</title>
+			<author initials="V." surname="Paxson" fullname="V. Paxson">
+				<organization></organization>
+			</author>
+			<author initials="M." surname="Handley" fullname="M. Handley">
+				<organization></organization>
+			</author>
+			<author initials="C." surname="Kreibich" fullname="C. Kreibich">
+				<organization></organization>
+			</author>
+
+			<date year="2001"/>
+		</front>
+		<seriesInfo name="" value="USENIX Conference, 2001"/>
+	</reference>
+
+
+
+	<reference anchor="Ptacek1998">
+		<front>
+			<title>Insertion, Evasion and Denial of Service: Eluding Network Intrusion Detection</title>
+			<author initials="T. H." surname="Ptacek" fullname="T. H. Ptacek">
+				<organization>Secure Networks, Inc.</organization>
+			</author>
+			<author initials="T. N." surname="Newsham" fullname="T. N. Newsham">
+				<organization>Secure Networks, Inc.</organization>
+			</author>
+
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="" value="http://www.aciri.org/vern/Ptacek-Newsham-Evasion-98.ps"/>
+	</reference>
+
+	<reference anchor="Sanfilippo1998a">
+		<front>
+			<title>about the ip header id</title>
+			<author initials="S." surname="Sanfilippo" fullname="S. Sanfilippo">
+				<organization></organization>
+			</author>
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="Post to Bugtraq mailing-list, Mon Dec 14 1998" value="http://www.kyuzz.org/antirez/papers/ipid.html"/>
+	</reference>
+
+	<reference anchor="Sanfilippo1998b">
+		<front>
+			<title>Idle scan</title>
+			<author initials="S." surname="Sanfilippo" fullname="S. Sanfilippo">
+				<organization></organization>
+			</author>
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="Post to Bugtraq mailing-list" value="http://www.kyuzz.org/antirez/papers/dumbscan.html"/>
+	</reference>
+
+	<reference anchor="Sanfilippo1999">
+		<front>
+			<title>more ip id</title>
+			<author initials="S." surname="Sanfilippo" fullname="S. Sanfilippo">
+				<organization></organization>
+			</author>
+			<date year="1999"/>
+		</front>
+		<seriesInfo name="Post to Bugtraq mailing-list" value="http://www.kyuzz.org/antirez/papers/moreipid.html"/>
+	</reference>
+
+	<reference anchor="OpenBSD-PF">
+		<front>
+			<title>PF: Scrub (Packet Normalization)</title>
+			<author initials="S." surname="Sanfilippo" fullname="S. Sanfilippo">
+				<organization></organization>
+			</author>
+			<date year="2010"/>
+		</front>
+		<seriesInfo name="" value="http://www.openbsd.org/faq/pf/scrub.html"/>
+	</reference>
+
+
+	<reference anchor="SELinux2008">
+		<front>
+			<title>http://www.nsa.gov/selinux/</title>
+			<author initials="" surname="Security Enhanced Linux" fullname="Security Enhanced Linux">
+				<organization></organization>
+			</author>
+			<date year=""/>
+		</front>
+	</reference>
+
+
+	<reference anchor="Shankar2003">
+		<front>
+			<title>Active Mapping: Resisting NIDS Evasion Without Altering Traffic</title>
+			<author initials="U." surname="Shankar" fullname="U. Shankar">
+				<organization></organization>
+			</author>
+			<author initials="V." surname="Paxson" fullname="V. Paxson">
+				<organization></organization>
+			</author>
+			<date year="2003"/>
+		</front>
+		<seriesInfo name="" value="http://www.icir.org/vern/papers/activemap-oak03.pdf"/>
+	</reference>
+
+
+
+	<reference anchor="Shannon2001">
+		<front>
+			<title>Characteristics of Fragmented IP Traffic on Internet Links</title>
+			<author initials="C." surname="Shannon" fullname="C. Shannon">
+				<organization></organization>
+			</author>
+			<author initials="D." surname="Moore" fullname="D. Moore">
+				<organization></organization>
+			</author>
+			<author initials="K.C." surname="Claffy" fullname="K.C. Claffy">
+				<organization></organization>
+			</author>
+
+			<date year="2001"/>
+		</front>
+	</reference>
+
+
+
+
+	<reference anchor="Silbersack2005">
+		<front>
+			<title>Improving TCP/IP security through randomization without sacrificing interoperability</title>
+			<author initials="M.J." surname="Silbersack" fullname="M. J. Silbersack">
+				<organization></organization>
+			</author>
+			<date year="2005"/>
+		</front>
+		<seriesInfo name="EuroBSDCon 2005 Conference" value="http://www.silby.com/eurobsdcon05/eurobsdcon_slides.pdf"/>
+	</reference>
+
+
+	<reference anchor="Solaris2008">
+		<front>
+			<title>http://www.sun.com/software/solaris/ds/trusted_extensions.jsp#3</title>
+			<author initials="" surname="Solaris Trusted Extensions - Labeled Security for Absolute Protection" fullname="Solaris Trusted Extensions - Labeled Security for Absolute Protection">
+				<organization></organization>
+			</author>
+			<date year="2008"/>
+		</front>
+	</reference>
+
+	<reference anchor="Song1999">
+		<front>
+			<title>Frag router tool</title>
+			<author initials="D. S." surname="Song" fullname="D. Song">
+				<organization></organization>
+			</author>
+			<date year=""/>
+		</front>
+		<seriesInfo name="" value="http://www.anzen.com/research/nidsbench/"/>
+	</reference>
+
+
+	<reference anchor="US-CERT2001">
+		<front>
+			<title>US-CERT Vulnerability Note VU#446689: Check Point FireWall-1 allows fragmented packets through firewall if Fast Mode is enabled</title>
+			<author initials="" surname="US-CERT" fullname="US-CERT">
+				<organization></organization>
+			</author>
+			<date year="2001"/>
+		</front>
+		<seriesInfo name="" value="http://www.kb.cert.org/vuls/id/446689"/>
+	</reference>
+
+
+	<reference anchor="US-CERT2002">
+		<front>
+			<title>US-CERT Vulnerability Note VU#310387: Cisco IOS discloses fragments of previous packets when Express Forwarding is enabled</title>
+			<author initials="" surname="US-CERT" fullname="US-CERT">
+				<organization></organization>
+			</author>
+			<date year="2002"/>
+		</front>
+		<seriesInfo name="" value="http://www.kb.cert.org/vuls/id/310387"/>
+	</reference>
+
+	<reference anchor="Zakrzewski2002">
+		<front>
+			<title>Linux Distributed Security Module</title>
+			<author initials="M." surname="Zakrzewski" fullname= "M. Zakrzewski">
+				<organization></organization>
+			</author>
+			<author initials="I." surname="Haddad" fullname= "I. Haddad">
+				<organization></organization>
+			</author>
+			<date year="2002"/>
+		</front>
+		<seriesInfo name="" value="http://www.linuxjournal.com/article/6215"/>
+	</reference>
+
+
+</references>
+
+<section title="Advice and guidance to vendors" anchor="adviceandguidance">
+<t>
+Vendors are urged to contact CPNI (vulteam@cpni.gsi.gov.uk) if they think they may be affected by the issues described in this document. As the lead coordination center for these issues, CPNI is well placed to give advice and guidance as required.
+</t>
+<t>
+CPNI works extensively with government departments and agencies, commercial organizations and the academic community to research vulnerabilities and potential threats to IT systems especially where they may have an impact on Critical National Infrastructure's (CNI). 
+</t>
+<t>Other ways to contact CPNI, plus CPNI's PGP public key, are available at http://www.cpni.gov.uk .
+</t>
+</section>
+
+<section title="Changes from previous versions of the draft (to be removed by the RFC Editor before publishing this document as an RFC)" anchor="changes">
+
+<section title="Changes from draft-ietf-opsec-ip-security-01">
+<t>
+<list style="symbols">
+<t>Addresses rest of the feedback received from Andrew Yourtchenko (http://www.ietf.org/mail-archive/web/opsec/current/msg00417.html)</t>
+<t>Addresses a very thorough review by Alfred Hoenes (sent off-list)</t>
+<t>Addresses feedback submitted by Joel Jaeggli (off-list)</t>
+<t>Addresses feedback submitted (off-list) by Bruno Rohee.</t>
+<t>Miscellaneous edits (centers expressions, fills missing graphics with ASCII-art, etc.)</t>
+</list>
+</t>
+</section>
+
+<section title="Changes from draft-ietf-opsec-ip-security-00">
+<t>
+<list style="symbols">
+<t>Addresses part of the feedback received from Andrew Yourtchenko (http://www.ietf.org/mail-archive/web/opsec/current/msg00417.html)</t>
+</list>
+</t>
+</section>
+
+
+<section title="Changes from draft-gont-opsec-ip-security-01">
+<t>
+<list style="symbols">
+<t>Draft resubmitted as draft-ietf, as a result of wg consensus on adopting the document as an opsec wg item.</t>
+</list>
+</t>
+</section>
+
+<section title="Changes from draft-gont-opsec-ip-security-00">
+<t>
+<list style="symbols">
+<t>Fixed author's affiliation.</t>
+<t>Added <xref target="ttltracking"/>.</t>
+<t>Fixed a few typos.</t>
+<t>(no technical changes)</t>
+</list>
+</t>
+</section>
+
+</section>
+
+</back>
+</rfc>

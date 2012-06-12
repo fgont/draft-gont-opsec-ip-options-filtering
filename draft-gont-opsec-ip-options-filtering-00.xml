@@ -1,0 +1,1546 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+    <!-- try to enforce the ID-nits conventions and DTD validity -->
+<?rfc strict="no" ?>    <!-- items used when reviewing the document -->
+<?rfc comments="no" ?>  <!-- controls display of <cref> elements -->
+<?rfc inline="no" ?>    <!-- when no, put comments at end in comments section,
+                                otherwise, put inline -->
+<?rfc editing="no" ?>   <!-- when yes, insert editing marks -->
+
+    <!-- create table of contents (set it options).
+           Note the table of contents may be omitted
+         for very short documents -->
+
+<?rfc toc="yes"?><?rfc tocompact="yes"?>
+<?rfc tocdepth="4"?>
+
+    <!-- choose the options for the references. Some like
+         symbolic tags in the references (and citations)
+         and others prefer numbers. --> 
+<?rfc symrefs="yes"?><?rfc sortrefs="yes" ?>
+    <!-- these two save paper: start new paragraphs from the same page etc. -->
+<?rfc compact="yes" ?><?rfc subcompact="no" ?>
+<!-- end of list of processing instructions -->
+    <!-- Information about the document.
+         categories values: std, bcp, info, exp, and historic
+         For Internet-Drafts, specify attribute "ipr".
+         (ipr values are: full3667, noModification3667, noDerivatives3667),
+         Also for Internet-Drafts, can specify values for
+         attributes "iprExtract", and "docName".  Note
+         that the value for iprExtract is the anchor attribute
+         value of a section that can be extracted, and is only
+         useful when the value of "ipr" is not "full3667". -->
+    <!-- TODO: verify which attributes are specified only
+            by the RFC editor.  It appears that attributes
+            "number", "obsoletes", "updates", and "seriesNo"
+            are specified by the RFC editor (and not by
+            the document author). -->
+
+<rfc    
+    category="bcp"
+    ipr="trust200902"
+    docName="draft-gont-opsec-ip-options-filtering-00.txt" >
+
+<front>
+    <title abbrev="IPv4 Security Assessment">IP Options Filtering Recommendations</title>
+
+    <!-- add 'role="editor"' below for the editors if appropriate -->    
+
+<author
+        fullname="Fernando Gont"
+        initials="F."
+        surname="Gont">
+    <!-- abbrev not needed but can be used for the header
+         if the full organization name is too long -->
+        <organization abbrev="UTN/FRH">Universidad Tecnologica Nacional / Facultad Regional Haedo</organization>
+        <address>
+            <postal>                <!-- I've omitted my street address here -->
+             <street>Evaristo Carriego 2644</street>
+		<code>1706</code><city>Haedo</city>
+ 		<region>Provincia de Buenos Aires</region>
+		<country>Argentina</country>
+            </postal>
+            <phone>+54 11 4650 8472</phone>
+            <email>fernando@gont.com.ar</email>
+		<uri>http://www.gont.com.ar</uri>
+        <!--            If I had a phone, fax machine, and a URI, I could add the following: --->
+
+        </address>
+    </author>    
+
+<author
+        fullname="Stefan Fouant"
+        initials="S."
+        surname="Fouant">
+        <organization abbrev="Shortest Path First">Shortest Path First</organization>
+        <address>
+    <!-- 
+            <postal>              
+             <street>Evaristo Carriego 2644</street>
+		<code>1706</code><city>Haedo</city>
+ 		<region>Provincia de Buenos Aires</region>
+		<country>Argentina</country>
+            </postal>
+            <phone></phone>
+--->
+            <email>sfouant@shortestpathfirst.net</email>
+		<uri>http://www.shortestpathfirst.net</uri>
+
+
+        </address>
+    </author>    
+
+
+<date year="2010" month="February"/> 
+<!-- month="May" is no longer necessary note also, day="30" is optional -->
+    <area>Internet</area>    <!-- WG name at the upperleft corner of the doc,
+         IETF fine for individual submissions -->
+    <workgroup>Operational Security Capabilities for IP Network Infrastructure (opsec)</workgroup>
+
+<abstract>
+<t>
+This document document provides advice on the filtering of packets based on the IP options they contain.  Additionally, it discusses the operational and interoperability implications of such filtering.
+</t>
+</abstract>
+
+</front>
+
+<middle>
+
+<section title="Introduction" anchor="intro">
+<t>This document document provides advice on the filtering of IP Options
+   within IPv4 headers.  Various protocols may use IP Options to some
+   extent, therefore the filtering of such options may have implications
+   on proper functioning of the protocol.  As such, this document attempts
+   to discuss the operational and interoperability implications of such
+   filtering.  Additionaly, this document will outline what a network
+   operator might do in a typical enterprise or Service Provider
+   environment.</t>
+
+            <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL",
+            "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
+            and "OPTIONAL" in this document are to be interpreted as
+            described in <xref target="RFC2119"/>.</t>
+</section>
+
+
+<section title="IP Options">
+
+<t>IP options allow for the extension of the Internet Protocol</t>
+
+<t>There are two cases for the format of an option:</t>
+
+<t>
+<list style="symbols">
+<t>Case 1: A single byte of option-type.</t>
+<t>Case 2: An option-type byte, an option-length byte, and the actual option-data bytes.</t>
+</list>
+</t>
+
+<t>In the Case 2, the option-length byte counts the option-type byte and the option-length byte, as well as the actual option-data bytes. </t>
+
+<t>All current and future options except "End of Option List" (Type = 0) and "No Operation" (Type = 1), are of Class 2.</t>
+
+<t>The option-type has three fields:</t>
+
+<t>
+<list style="symbols">
+<t>1 bit:  copied flag.</t>
+<t>2 bits: option class.</t>
+<t>5 bits: option number.</t>
+</list>
+</t>
+
+<t>The copied flag indicates whether this option should be copied to all fragments in the event the packet carrying it needs to be fragmented:</t>
+
+<t>
+<list style="symbols">
+<t>0 = not copied.</t>
+<t>1 = copied.</t>
+</list>
+</t>
+
+<t>The values for the option class are:</t>
+
+<t>
+<list style="symbols">
+<t>0 = control.</t>
+<t>1 = reserved for future use.</t>
+<t>2 = debugging and measurement.</t>
+<t>3 = reserved for future use.</t>
+</list>
+</t>
+
+<t>This format allows for the creation of new options for the extension of the Internet Protocol (IP).</t>
+
+<t>Finally, the option number identifies the syntax of the rest of the option.</t>
+
+<t><xref target="IANA2006b"/> contains the list of the currently assigned IP option numbers.</t>
+</section>
+
+
+<section title="Processing requirements">
+
+<t>Router manufacturers tend to do IP option processing on the main processor, rather than on line cards. Unless special care is taken, this represents Denial of Service (DoS) risk, as there is potential for overwhelming the router with option processing.</t>
+<t>The following sections contain a description of each of the IP options that have so far been specified, a discussion of possible interoperability implications if packets containing such options are filtered, and specific advice on whether to filter packets containing these options in a typical enterprise or Service Provider environment.</t>
+</section>
+
+
+<section title="Advice on handling of specific IP Options">
+<section title="End of Option List (Type = 0)">
+<section title="Uses">
+<t>This option is used to indicate the "end of options" in those cases in which the end of options would not coincide with the end of the Internet Protocol Header.</t>
+</section>
+
+<section title="Option specification">
+<t>Specified in RFC 791 <xref target="RFC0791"/>.</t>
+</section>
+
+<section title="Threats">
+<t>TBD</t>
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+<t>Packets containing any IP options are likely to include an End of Option List. Therefore, if packets containing this option are filtered, it is very likely that legitimate traffic is filtered.</t>
+</section>
+
+<section title="Advice">
+<t>Do not filter packets containing this option.</t>
+</section>
+
+</section>
+
+<section title="No Operation (Type = 1)">
+
+<section title="Uses">
+<t>The no-operation option is basically meant to allow the sending system to align subsequent options in, for example, 32-bit boundaries.</t>
+</section>
+
+<section title="Option specification">
+<t>Specified in RFC 791 <xref target="RFC0791"/>.</t>
+</section>
+
+<section title="Threats">
+<t>TBD</t>
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+Packets containing any IP options are likely to include a No Operation option. Therefore, if packets containing this option are filtered, it is very likely that legitimate traffic is filtered.
+</section>
+
+<section title="Advice">
+<t>Do not filter packets containing this option.</t>
+</section>
+
+</section>
+
+
+<section title="Loose Source and Record Route (LSRR) (Type = 131)" anchor="LSRR">
+
+
+<t>RFC 791 states that this option should appear, at most, once in a given packet. Thus, if a packet contains more than one LSRR option, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop). Additionally, packets containing a combination of LSRR and SSRR options should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<section title="Uses">
+<t>This option lets the originating system specify a number of intermediate systems a packet must pass through to get to the destination host. Additionally, the route followed by the packet is recorded in the option. The receiving host (end-system) must use the reverse of the path contained in the received LSRR option.</t>
+
+<t>The LSSR option can be of help in debugging some network problems. Some ISP (Internet Service Provider) peering agreements require support for this option in the routers within the peer of the ISP. </t>
+</section>
+
+<section title="Option specification">
+<t>Specified in RFC 791 <xref target="RFC0791"/>.</t>
+</section>
+
+<section title="Threats">
+<t>The LSRR option has well-known security implications. Among other things, the option can be used to:</t>
+
+<t>
+<list style="symbols">
+<t>Bypass firewall rules</t>
+<t>Reach otherwise unreachable internet systems</t>
+<t>Establish TCP connections in a stealthy way</t>
+<t>Learn about the topology of a network</t>
+<t>Perform bandwidth-exhaustion attacks</t>
+</list>
+</t>
+
+<t>Of these attack vectors, the one that has probably received least attention is the use of the LSRR option to perform bandwidth exhaustion attacks. The LSRR option can be used as an amplification method for performing bandwidth-exhaustion attacks, as an attacker could make a packet bounce multiple times between a number of systems by carefully crafting an LSRR option.</t>
+
+<t>
+<list style="hanging">
+<t>This is the IPv4-version of the IPv6 amplification attack that was widely publicized in 2007 <xref target="Biondi2007"/>. The only difference is that the maximum length of the IPv4 header (and hence the LSRR option) limits the amplification factor when compared to the IPv6 counter-part.</t>
+</list>
+</t>
+
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+<t>TBD</t>
+</section>
+
+<section title="Advice">
+<t>All systems should, by default, drop IP packets that contain an LSRR option.</t>
+</section>
+
+
+</section>
+
+<section title="Strict Source and Record Route (SSRR) (Type = 137)" anchor="SSRR">
+
+<section title="Uses">
+<t>This option allows the originating system to specify a number of intermediate systems a packet must pass through to get to the destination host. Additionally, the route followed by the packet is recorded in the option, and the destination host (end-system) must use the reverse of the path contained in the received SSRR option.</t>
+
+<t>This option is similar to the Loose Source and Record Route (LSRR) option, with the only difference that in the case of SSRR, the route specified in the option is the exact route the packet must take (i.e., no other intervening routers are allowed to be in the route).</t>
+
+<t>The SSSR option can be of help in debugging some network problems. Some ISP (Internet Service Provider) peering agreements require support for this option in the routers within the peer of the ISP. </t>
+</section>
+
+<section title="Option specification">
+<t>Specified in RFC 791 <xref target="RFC0791"/>.</t>
+</section>
+
+<section title="Threats">
+<t>The SSRR option has the same security implications as the LSRR option. Please refer to <xref target="LSRR"/> for a discussion of such security implications.</t>
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+<t>TBD</t>
+</section>
+
+<section title="Advice">
+<t>All systems should, by default, drop IP packets that contain an SSRR option.</t>
+</section>
+
+
+</section>
+
+<section title="Record Route (Type = 7)">
+
+<section title="Uses">
+<t>This option provides a means to record the route that a given packet follows.</t>
+</section>
+
+<section title="Option specification">
+<t>Specified in RFC 791 <xref target="RFC0791"/>.</t>
+</section>
+
+<section title="Threats">
+<t>This option can be exploited to map the topology of a network. However, the limited space in the IP header limits the usefulness of this option for that purpose.</t>
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+<t>TBD</t>
+</section>
+
+<section title="Advice">
+<t>Drop IP packets that contain a Record Route option.</t>
+</section>
+
+
+</section>
+
+<section title="Stream Identifier (Type = 136)">
+
+<t>The Stream Identifier option originally provided a means for the 16-bit SATNET stream Identifier to be carried through networks that did not support the stream concept.</t>
+
+<t>However, as stated by Section 4.2.2.1 of RFC 1812 <xref target="RFC1812"/>, this option is obsolete. Therefore, it must be ignored by the processing systems.</t>
+
+<t>In the case of legacy systems still using this option, the length field of the option should be checked to be 4. If the option does not pass this check, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<t>RFC 791 states that this option appears at most once in a given datagram. Therefore, if a packet contains more than one instance of this option, it should be dropped, and this event should be logged (e.g., a counter could be incremented to reflect the packet drop).</t>
+
+<section title="Uses">
+
+</section>
+
+<section title="Option specification">
+<t>Specified in RFC 791 <xref target="RFC0791"/>.</t>
+</section>
+
+<section title="Threats">
+
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+
+</section>
+
+<section title="Advice">
+
+</section>
+
+
+</section>
+
+<section title="Internet Timestamp (Type = 68)">
+
+<section title="Uses">
+<t>This option provides a means for recording the time at which each system processed this datagram.</t>
+</section>
+
+<section title="Option specification">
+<t>Specified by RFC 791 <xref target="RFC0791"/>.</t>
+</section>
+
+<section title="Threats">
+<t>The timestamp option has a number of security implications. Among them are: </t>
+
+<t>
+<list style="symbols">
+<t>It allows an attacker to obtain the current time of the systems that process the packet, which the attacker may find useful in a number of scenarios.</t>
+<t>It may be used to map the network topology, in a similar way to the IP Record Route option.</t>
+<t>It may be used to fingerprint the operating system in use by a system processing the datagram.</t>
+<t>It may be used to fingerprint physical devices, by analyzing the clock skew.</t>
+</list>
+</t>
+<t><xref target="Kohno2005"/> describes a technique for fingerprinting devices by measuring the clock skew. It exploits, among other things, the timestamps that can be obtained by means of the ICMP timestamp request messages <xref target="RFC0791"/>. However, the same fingerprinting method could be implemented with the aid of the Internet Timestamp option.</t>
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+<t>TBD.</t>
+</section>
+
+<section title="Advice">
+<t>Filter IP packets that contain an Internet Timestamp option.</t>
+</section>
+
+
+</section>
+
+<section title="Router Alert (Type = 148)">
+
+<section title="Uses">
+<t>The Router Alert option has the semantic &quot;routers should examine this packet more closely, if they participate in the functionality denoted by the Value of the option&quot;.</t>
+</section>
+
+<section title="Option specification">
+<t>The Router Alert option is defined in RFC 2113 <xref target="RFC2113"/> and later updates to it have been clarified by RFC 5350 <xref target="RFC5350"/>.  It contains a 16-bit Value governed by an IANA registry (see <xref target="RFC5350"/>).</t>
+</section>
+
+<section title="Threats">
+<t>TBD.</t>
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+<t>TBD</t>
+</section>
+
+<section title="Advice">
+<t>TBD</t>
+</section>
+
+
+
+</section>
+
+<section title="Probe MTU (Type = 11) (obsolete)">
+
+<section title="Uses">
+<t>This option originally provided a mechanism to discover the Path-MTU. It has been declared obsolete.</t>
+</section>
+
+<section title="Option specification">
+<t>This option was defined in RFC 1063 <xref target="RFC1063"/>. This option is obsolete.</t>
+
+</section>
+
+<section title="Threats">
+<t>None</t>
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+<t>None</t>
+</section>
+
+<section title="Advice">
+<t>Filter IP packets that contain a Probe MTU option.</t>
+</section>
+
+</section>
+
+<section title="Reply MTU (Type = 12) (obsolete)">
+
+<section title="Uses">
+<t>This option and originally provided a mechanism to discover the Path-MTU. It is now obsolete.</t>
+</section>
+
+<section title="Option specification">
+<t>This option was originally specified by RFC 1063 <xref target="RFC1063"/>, and is now obsolete.</t> 
+</section>
+
+<section title="Threats">
+<t>None.</t>
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+<t>None</t>
+</section>
+
+<section title="Advice">
+<t>Filter IP packets that contain a Reply MTU option.</t>
+</section>
+
+</section>
+
+<section title="Traceroute (Type = 82)">
+
+<section title="Uses">
+<t>This option originally provided a mechanism to trace the path to a host.</t>
+</section>
+
+<section title="Option specification">
+<t>This option was originally specified by RFC 1393 <xref target="RFC1393"/>. It has been declared obsolete.</t>
+</section>
+
+<section title="Threats">
+<t>None</t>
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+<t>None</t>
+</section>
+
+<section title="Advice">
+<t>Filter IP packets that contain a Traceroute option.</t>
+</section>
+
+</section>
+
+<section title="DoD Basic Security Option (Type = 130)" anchor="dod-basic-security">
+
+<section title="Uses">
+<t>This option is used by Multi-Level-Secure (MLS) end-systems and intermediate systems in specific environments to <xref target="RFC1108"/>:</t>
+
+<t>
+<list style="symbols">
+<t>Transmit from source to destination in a network standard representation the common security labels required by computer security models,</t>
+<t>Validate the datagram as appropriate for transmission from the source and delivery to the destination, and,</t>
+<t>Ensure that the route taken by the datagram is protected to the level required by all protection authorities indicated on the datagram.</t>
+</list>
+</t>
+
+<t>The DoD Basic Security Option is currently implemented in a number of operating systems (e.g., <xref target="IRIX2008"/>, <xref target="SELinux2008"/>, <xref target="Solaris2008"/>, and <xref target="Cisco2008"/>), and deployed in a number of high-security networks.</t>
+
+</section>
+
+<section title="Option specification">
+<t>It is specified by RFC 1108 <xref target="RFC1108"/> (which obsoletes RFC 1038 <xref target="RFC1038"/>).</t>
+
+<t>
+<list style="hanging">
+<t>RFC 791 <xref target="RFC0791"/> defined the "Security Option" (Type = 130), which used the same option type as the DoD Basic Security option discussed in this section. The "Security Option" specified in RFC 791 is considered obsolete by Section 3.2.1.8 of RFC 1122, and therefore the discussion in this section is focused on the DoD Basic Security option specified by RFC 1108 <xref target="RFC1108"/>.</t>
+</list>
+</t>
+
+<t>Section 4.2.2.1 of RFC 1812 states that routers "SHOULD implement this option".</t>
+
+</section>
+
+<section title="Threats">
+<t>TBD.</t>
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+<t>TBD</t>
+</section>
+
+<section title="Advice">
+<t>TBD</t>
+</section>
+
+</section>
+
+<section title="DoD Extended Security Option (Type = 133)">
+
+<section title="Uses">
+<t>This option permits additional security labeling information, beyond that present in the Basic Security Option (<xref target="dod-basic-security"/>), to be supplied in an IP datagram to meet the needs of registered authorities.</t>
+</section>
+
+<section title="Option specification">
+<t>This option is specified by RFC 1108 <xref target="RFC1108"/>.</t>
+</section>
+
+<section title="Threats">
+<t>TBD</t>
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+<t>TBD</t>
+</section>
+
+<section title="Advice">
+<t>TBD</t>
+</section>
+
+
+</section>
+
+<section title="Commercial IP Security Option (CIPSO) (Type = 134)">
+
+
+
+
+<section title="Uses">
+<t>This option was proposed by the Trusted Systems Interoperability Group (TSIG), with the intent of meeting trusted networking requirements for the commercial trusted systems market place. </t>
+
+<t>It is currently implemented in a number of operating systems (e.g., IRIX <xref target="IRIX2008"/>, Security-Enhanced Linux <xref target="SELinux2008"/>, and Solaris <xref target="Solaris2008"/>), and deployed in a number of high-security networks.</t>
+</section>
+
+<section title="Option specification">
+<t>This option is specified in <xref target="CIPSO1992"/> and <xref target="FIPS1994"/>.</t>
+</section>
+
+<section title="Threats">
+<t>TBD</t>
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+<t>TBD</t>
+</section>
+
+<section title="Advice">
+<t>TBD</t>
+</section>
+
+
+</section>
+
+<section title="Sender Directed Multi-Destination Delivery (Type = 149)">
+
+<section title="Uses">
+<t>This option originally provided unreliable UDP delivery to a set of addresses included in the option. It is currently obsolete. </t>
+</section>
+
+<section title="Option specification">
+<t>This option is defined in RFC 1770 <xref target="RFC1770"/>.</t>
+</section>
+
+<section title="Threats">
+<t>TBD</t>
+</section>
+
+<section title="Operational/interoperability impact if blocked">
+<t>TBD</t>
+</section>
+
+<section title="Advice">
+<t>TBD</t>
+</section>
+
+
+</section>
+</section>
+
+<section title="Security Considerations">
+<t>
+This document provides advice on the filtering of IP packets that contain IP options.
+</t>
+</section>
+
+
+<section title="Acknowledgements">
+
+<t>Part of this document is based on the document &amp;Security Assesment of the Internet Protocol&amp; <xref target="CPNI2008"/> that is the result of a project carried out by Fernando Gont on behalf of UK CPNI (formerly NISCC). </t>
+<t>Fernando Gont would like to thank UK CPNI (formerly NISCC) for their continued support.</t>
+</section>
+
+</middle>
+
+<back>
+<references title="Normative References">
+	<?rfc include="reference.RFC.0791" ?>
+	<?rfc include="reference.RFC.0826" ?>
+	<?rfc include="reference.RFC.1038" ?>
+	<?rfc include="reference.RFC.1063" ?>
+
+	<?rfc include="reference.RFC.1108" ?>
+	<?rfc include="reference.RFC.1112" ?>
+	<?rfc include="reference.RFC.1122" ?>
+	<?rfc include="reference.RFC.1191" ?>
+
+	<?rfc include="reference.RFC.1349" ?>
+	<?rfc include="reference.RFC.1393" ?>
+
+
+	<?rfc include="reference.RFC.1770" ?>
+
+	<?rfc include="reference.RFC.1812" ?>
+
+	<?rfc include="reference.RFC.2113" ?>
+	<?rfc include="reference.RFC.2119" ?>
+	<?rfc include="reference.RFC.2474" ?>
+
+	<?rfc include="reference.RFC.2475" ?>
+	<?rfc include="reference.RFC.2644" ?>
+	<?rfc include="reference.RFC.3927" ?>
+	<?rfc include="reference.RFC.4821" ?>
+	<?rfc include="reference.RFC.5735" ?>
+
+</references>
+
+<references title="Informative References">
+	<?rfc include="reference.RFC.0815" ?>
+	<?rfc include="reference.RFC.1858" ?>
+	<?rfc include="reference.RFC.1918" ?>
+
+	<?rfc include="reference.RFC.2544" ?>
+	<?rfc include="reference.RFC.2827" ?>
+	<?rfc include="reference.RFC.3056" ?>
+	<?rfc include="reference.RFC.3128" ?>
+	<?rfc include="reference.RFC.3168" ?>
+	<?rfc include="reference.RFC.3530" ?>
+
+	<?rfc include="reference.RFC.3704" ?>
+	<?rfc include="reference.RFC.4459" ?>
+
+	<?rfc include="reference.RFC.4632" ?>
+	<?rfc include="reference.RFC.4963" ?>
+
+	<?rfc include="reference.RFC.4987" ?>
+	<?rfc include="reference.RFC.5082" ?>
+	<?rfc include="reference.RFC.5350" ?>
+	<?rfc include="reference.RFC.5570" ?>
+
+	<?rfc include="reference.I-D.ietf-tcpm-icmp-attacks" ?>
+	<?rfc include="reference.I-D.fuller-240space" ?>
+
+	<?rfc include="reference.I-D.templin-mtuassurance" ?>
+	<?rfc include="reference.I-D.wilson-class-e" ?>
+
+	<reference anchor="Watson2004">
+		<front>
+			<title>Slipping in the Window: TCP Reset Attacks</title>
+			<author initials="P.A." surname="Watson" fullname="Paul A. Watson">
+				<organization></organization>
+			</author>
+			<date year="2004"/>
+		</front>
+		<seriesInfo name="2004 CanSecWest Conference" value=""/>
+	</reference>
+
+
+	<reference anchor="Anderson2001">
+		<front>
+			<title>An Analysis of Fragmentation Attacks</title>
+			<author initials="J." surname="Anderson" fullname="J. Anderson">
+				<organization></organization>
+			</author>
+			<date year="2001"/>
+		</front>
+		<seriesInfo name="Available at: http://www.ouah.org/fragma.html" value=""/>
+	</reference>
+
+	<reference anchor="Arkin2000">
+		<front>
+			<title>IP TTL Field Value with ICMP (Oops - Identifying Windows 2000 again and more)</title>
+			<author initials="" surname="Arkin" fullname="Ofir Arkin">
+				<organization></organization>
+			</author>
+			<date year="2000"/>
+		</front>
+		<seriesInfo name="" value="http://ofirarkin.files.wordpress.com/2008/11/ofirarkin2000-06.pdf"/>
+	</reference>
+
+	<reference anchor="CIPSO1992">
+		<front>
+			<title>COMMERCIAL IP SECURITY OPTION (CIPSO 2.2)</title>
+			<author initials="" surname="CIPSO" fullname="CIPSO">
+				<organization></organization>
+			</author>
+			<date year="1992"/>
+		</front>
+		<seriesInfo name="IETF Internet-Draft (draft-ietf-cipso-ipsecurity-01.txt), work in progress" value=""/>
+	</reference>
+
+	<reference anchor="Barisani2006">
+		<front>
+			<title>FTester - Firewall and IDS testing tool</title>
+			<author initials="A." surname="Barisani" fullname="A. Barisani">
+				<organization></organization>
+			</author>
+			<date year="2001"/>
+		</front>
+		<seriesInfo name="Available at: http://dev.inversepath.com/trac/ftester" value=""/>
+	</reference>
+
+
+	<reference anchor="Bellovin1989">
+		<front>
+			<title>Security Problems in the TCP/IP Protocol Suite</title>
+			<author initials="S. M." surname="Bellovin" fullname= "Bellovin, S. M.">
+				<organization></organization>
+			</author>
+			<date year="1989"/>
+		</front>
+		<seriesInfo name="Computer Communication Review" value="Vol. 19, No. 2, pp. 32-48"/>
+	</reference>
+
+	<reference anchor="Bellovin2002">
+		<front>
+			<title>A Technique for Counting NATted Hosts</title>
+			<author initials="S. M." surname="Bellovin" fullname= "Bellovin, S. M.">
+				<organization></organization>
+			</author>
+			<date year="2002"/>
+		</front>
+		<seriesInfo name="IMW'02" value="Nov. 6-8, 2002, Marseille, France"/>
+	</reference>
+
+	<reference anchor="Bendi1998">
+		<front>
+			<title>Boink exploit</title>
+			<author initials="" surname="Bendi" fullname="Bendi">
+				<organization></organization>
+			</author>
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="http://www.insecure.org/sploits/95.NT.fragmentation.bonk.html" value=""/>
+	</reference>
+
+
+	<reference anchor="Biondi2007">
+		<front>
+			<title>IPv6 Routing Header Security</title>
+			<author initials="P." surname="Biondi" fullname= "P. Biondi">
+				<organization></organization>
+			</author>
+			<author initials="A." surname="Ebalard" fullname= "A. Ebalard">
+				<organization></organization>
+			</author>
+
+			<date year="2007"/>
+		</front>
+		<seriesInfo name="CanSecWest 2007 Security Conference" value="http://www.secdev.org/conf/IPv6_RH_security-csw07.pdf"/>
+	</reference>
+
+	<reference anchor="Cerf1974">
+		<front>
+			<title>A Protocol for Packet Network Intercommunication</title>
+			<author initials="V." surname="Cerf" fullname= "V. Cerf">
+				<organization></organization>
+			</author>
+			<author initials="R." surname="Kahn" fullname= "R. Kahn">
+				<organization></organization>
+			</author>
+
+			<date year="1974"/>
+		</front>
+		<seriesInfo name="IEEE Transactions on Communications" value="Vol. 22, No. 5, May 1974, pp. 637-648"/>
+	</reference>
+
+
+
+	<reference anchor="CERT1996a">
+		<front>
+			<title>CERT Advisory CA-1996-01: UDP Port Denial-of-Service Attack</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="1996"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-1996-01.html"/>
+	</reference>
+
+	<reference anchor="CERT1996b">
+		<front>
+			<title>CERT Advisory CA-1996-21: TCP SYN Flooding and IP Spoofing Attacks</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="1996"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-1996-21.html"/>
+	</reference>
+
+	<reference anchor="CERT1996c">
+		<front>
+			<title>CERT Advisory CA-1996-26: Denial-of-Service Attack via ping</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="1996"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-1996-26.html"/>
+	</reference>
+
+	<reference anchor="CERT1997">
+		<front>
+			<title>CERT Advisory CA-1997-28: IP Denial-of-Service Attacks</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="1997"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-1997-28.html"/>
+	</reference>
+
+	<reference anchor="CERT1998a">
+		<front>
+			<title>CERT Advisory CA-1998-01: Smurf IP Denial-of-Service Attacks</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-1998-01.html"/>
+	</reference>
+
+	<reference anchor="CERT1998b">
+		<front>
+			<title>CERT Advisory CA-1998-13: Vulnerability in Certain TCP/IP Implementations</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-1998-13.html"/>
+	</reference>
+
+	<reference anchor="CERT1999">
+		<front>
+			<title>CERT Advisory CA-1999-17: Denial-of-Service Tools</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="1999"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-1999-17.html"/>
+	</reference>
+
+	<reference anchor="CERT2001">
+		<front>
+			<title>CERT Advisory CA-2001-09: Statistical Weaknesses in TCP/IP Initial Sequence Numbers</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="2001"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-2001-09.html"/>
+	</reference>
+
+	<reference anchor="CERT2003">
+		<front>
+			<title>CERT Advisory CA-2003-15 Cisco IOS Interface Blocked by IPv4 Packet</title>
+			<author initials="" surname="CERT" fullname="CERT">
+				<organization></organization>
+			</author>
+			<date year="2003"/>
+		</front>
+		<seriesInfo name="" value="http://www.cert.org/advisories/CA-2003-15.html"/>
+	</reference>
+
+	<reference anchor="CIPSOWG1994">
+		<front>
+			<title>Commercial Internet Protocol Security Option (CIPSO) Working Group</title>
+			<author initials="" surname="CIPSOWG" fullname="CIPSOWG">
+				<organization></organization>
+			</author>
+			<date year="1994"/>
+		</front>
+		<seriesInfo name="" value="http://www.ietf.org/proceedings/94jul/charters/cipso-charter.html"/>
+	</reference>
+
+
+	<reference anchor="Cisco2003">
+		<front>
+			<title>Cisco Security Advisory: Cisco IOS Interface Blocked by IPv4 packet</title>
+			<author initials="" surname="Cisco" fullname="Cisco">
+				<organization></organization>
+			</author>
+			<date year="2003"/>
+		</front>
+		<seriesInfo name="" value="http://www.cisco.com/en/US/products/products_security_advisory09186a00801a34c2.shtml"/>
+	</reference>
+
+	<reference anchor="Cisco2008">
+		<front>
+			<title>Cisco IOS Security Configuration Guide, Release 12.2</title>
+			<author initials="" surname="Cisco" fullname="Cisco">
+				<organization></organization>
+			</author>
+			<date year="2003"/>
+		</front>
+		<seriesInfo name="" value="http://www.cisco.com/en/US/docs/ios/12_2/security/configuration/guide/scfipso.html"/>
+	</reference>
+
+	<reference anchor="Clark1988">
+		<front>
+			<title>The Design Philosophy of the DARPA Internet Protocols</title>
+			<author initials="D. D." surname="Clark" fullname= "David D. Clark">
+				<organization></organization>
+			</author>
+			<date year="1988"/>
+		</front>
+		<seriesInfo name="Computer Communication Review" value="Vol. 18, No. 4"/>
+	</reference>
+
+	<reference anchor="daemon91996">
+		<front>
+			<title>IP-spoofing Demystified (Trust-Relationship Exploitation)</title>
+			<author initials="" surname="daemon9" fullname= "daemon9">
+				<organization></organization>
+			</author>
+			<author initials="" surname="route" fullname= "route">
+				<organization></organization>
+			</author>
+			<author initials="" surname="infinity" fullname= "infinity">
+				<organization></organization>
+			</author>
+
+			<date year="1988"/>
+		</front>
+		<seriesInfo name="Phrack Magazine, Volume Seven, Issue Forty-Eight, File 14 of 18" value="http://www.phrack.org/phrack/48/P48-14 "/>
+	</reference>
+
+	<reference anchor="Ed3f2002">
+		<front>
+			<title>Firewall spotting and networks analisys with a broken CRC</title>
+			<author initials="" surname="Ed3f" fullname= "Ed3f">
+				<organization></organization>
+			</author>
+
+			<date year="2002"/>
+		</front>
+		<seriesInfo name="Phrack Magazine, Volume 0x0b, Issue 0x3c, Phile #0x0c of 0x10" value="http://www.phrack.org/issues.html?issue=60&amp;id=12&amp;mode=txt"/>
+	</reference>
+
+	<reference anchor="FIPS1994">
+		<front>
+			<title>Standard Security Label for Information Transfer</title>
+			<author initials="" surname="FIPS" fullname= "FIPS">
+				<organization></organization>
+			</author>
+
+			<date year="1994"/>
+		</front>
+		<seriesInfo name="Federal Information Processing Standards Publication. FIP PUBS 188" value="http://csrc.nist.gov/publications/fips/fips188/fips188.pdf"/>
+	</reference>
+
+
+	<reference anchor="Fuller2008a">
+		<front>
+			<title>240.0.0.0/4: The Future Begins Now</title>
+			<author initials="V." surname="Fuller" fullname= "V. Fuller">
+				<organization></organization>
+			</author>
+
+			<author initials="E." surname="Lear" fullname= "E. Lear">
+				<organization></organization>
+			</author>
+
+			<author initials="D." surname="Meyer" fullname= "D. Meyer">
+				<organization></organization>
+			</author>
+
+			<date year="2008"/>
+		</front>
+		<seriesInfo name="Routing SIG Meeting, 25th APNIC Open Policy Meeting, February 25 - 29 2008, Taipei, Taiwan" value="http://www.apnic.net/meetings/25/program/routing/fuller-240-future.pdf"/>
+	</reference>
+
+	<reference anchor="Fyodor2004">
+		<front>
+			<title>Idle scanning and related IP ID games</title>
+			<author initials="" surname="Fyodor" fullname="Fyodor">
+				<organization></organization>
+			</author>
+			<date year="2004"/>
+		</front>
+		<seriesInfo name="" value="http://www.insecure.org/nmap/idlescan.html"/>
+	</reference>
+
+	<reference anchor="GIAC2000">
+		<front>
+			<title>Egress Filtering v 0.2</title>
+			<author initials="" surname="GIAC" fullname="GIAC">
+				<organization></organization>
+			</author>
+			<date year="2000"/>
+		</front>
+		<seriesInfo name="" value="http://www.sans.org/y2k/egress.htm"/>
+	</reference>
+
+
+	<reference anchor="Gont2006">
+		<front>
+			<title>Advanced ICMP packet filtering</title>
+			<author initials="F.G." surname="Gont" fullname="Fernando Gont">
+				<organization></organization>
+			</author>
+			<date year="2006"/>
+		</front>
+		<seriesInfo name="" value="http://www.gont.com.ar/papers/icmp-filtering.html"/>
+	</reference>
+
+
+	<reference anchor="Haddad2004">
+		<front>
+			<title>Security Distribution for Linux Clusters</title>
+			<author initials="I." surname="Haddad" fullname="Haddad">
+				<organization></organization>
+			</author>
+			<author initials="M." surname="Zakrzewski" fullname="Zakrzewski">
+				<organization></organization>
+			</author>
+			<date year="2004"/>
+		</front>
+		<seriesInfo name="Linux Journal" value="http://www.linuxjournal.com/article/6943"/>
+	</reference>
+
+
+
+	<reference anchor="Humble1998">
+		<front>
+			<title>Nestea exploit</title>
+			<author initials="F.G." surname="Gont" fullname="Fernando Gont">
+				<organization></organization>
+			</author>
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="" value="http://www.insecure.org/sploits/linux.PalmOS.nestea.html"/>
+	</reference>
+
+
+
+
+
+	<reference anchor="IANA2006a">
+		<front>
+			<title>http://www.iana.org/assignments/ethernet-numbers</title>
+			<author initials="" surname="Ether Types" fullname="Ether Types">
+				<organization></organization>
+			</author>
+			<date year=""/>
+		</front>
+	</reference>
+
+
+	<reference anchor="IANA2006b">
+		<front>
+			<title>http://www.iana.org/assignments/ip-parameters</title>
+			<author initials="" surname="IP Parameters" fullname="IP Parameters">
+				<organization></organization>
+			</author>
+			<date year=""/>
+		</front>
+	</reference>
+
+
+	<reference anchor="IANA2006c">
+		<front>
+			<title>http://www.iana.org/assignments/protocol-numbers</title>
+			<author initials="" surname="Protocol Numbers" fullname="Protocol Numbers">
+				<organization></organization>
+			</author>
+			<date year=""/>
+		</front>
+	</reference>
+
+	<reference anchor="IRIX2008">
+		<front>
+			<title>IRIX 6.5 trusted_networking(7) manual page</title>
+			<author initials="" surname="IRIX" fullname="IRIX">
+				<organization></organization>
+			</author>
+			<date year="2008"/>
+		</front>
+		<seriesInfo name="" value="http://techpubs.sgi.com/library/tpl/cgi-bin/getdoc.cgi?coll=0650&db=man&fname=/usr/share/catman/a_man/cat7/trusted_networking.z"/>
+	</reference>
+
+	<reference anchor="Jones2002">
+		<front>
+			<title>A Method Of Selecting Values For the Parameters Controlling IP Fragment Reassembly</title>
+			<author initials="R." surname="Jones" fullname="R. Jones">
+				<organization></organization>
+			</author>
+			<date year="2002"/>
+		</front>
+		<seriesInfo name="" value="ftp://ftp.cup.hp.com/dist/networking/briefs/ip_reass_tuning.txt"/>
+	</reference>
+
+	<reference anchor="Kenney1996">
+		<front>
+			<title>The Ping of Death Page</title>
+			<author initials="M." surname="Kenney" fullname="M. Kenney">
+				<organization></organization>
+			</author>
+			<date year="1996"/>
+		</front>
+		<seriesInfo name="" value="http://www.insecure.org/sploits/ping-o-death.html"/>
+	</reference>
+
+	<reference anchor="Kent1987">
+		<front>
+			<title>Fragmentation considered harmful</title>
+			<author initials="C." surname="Kent" fullname="C. Kent">
+				<organization></organization>
+			</author>
+			<author initials="J." surname="Mogul" fullname="J. Mogul">
+				<organization></organization>
+			</author>
+
+			<date year="1987"/>
+		</front>
+		<seriesInfo name="Proc. SIGCOMM '87" value="Vol. 17, No. 5, October 1987"/>
+	</reference>
+
+	<reference anchor="Klein2007">
+		<front>
+			<title>OpenBSD DNS Cache Poisoning and Multiple O/S Predictable IP ID Vulnerability</title>
+			<author initials="A." surname="Klein" fullname="Amit Klein">
+				<organization></organization>
+			</author>
+			<date year="2007"/>
+		</front>
+		<seriesInfo name="" value="http://www.trusteer.com/files/OpenBSD_DNS_Cache_Poisoning_and_Multiple_OS_Predictable_IP_ID_Vulnerability.pdf"/>
+	</reference>
+
+	<reference anchor="Kohno2005">
+		<front>
+			<title>Remote Physical Device Fingerprinting</title>
+			<author initials="T." surname="Kohno" fullname="T. Kohno">
+				<organization></organization>
+			</author>
+			<author initials="A." surname="Broido" fullname="A. Broido">
+				<organization></organization>
+			</author>
+			<author initials="kc" surname="Claffy" fullname="kc Claffy">
+				<organization></organization>
+			</author>
+
+			<date year="2005"/>
+		</front>
+		<seriesInfo name="IEEE Transactions on Dependable and Secure Computing" value="Vol. 2, No. 2"/>
+	</reference>
+
+	<reference anchor="LBNL2006">
+		<front>
+			<title>arpwatch tool</title>
+			<author initials="" surname="LBNL/NRG" fullname="LBNL/NRG">
+				<organization></organization>
+			</author>
+			<date year="2006"/>
+		</front>
+		<seriesInfo name="" value="http://ee.lbl.gov/"/>
+	</reference>
+
+
+
+	<reference anchor="Linux2006">
+		<front>
+			<title>http://www.kernel.org</title>
+			<author initials="" surname="The Linux Project" fullname="The Linux Kernel web site">
+				<organization></organization>
+			</author>
+			<date year=""/>
+		</front>
+	</reference>
+
+
+	<reference anchor="Microsoft1999">
+		<front>
+			<title>Microsoft Security Program: Microsoft Security Bulletin (MS99-038). Patch Available for "Spoofed Route Pointer" Vulnerability</title>
+			<author initials="" surname="Microsoft" fullname="Microsoft">
+				<organization></organization>
+			</author>
+			<date year="1999"/>
+		</front>
+		<seriesInfo name="" value="http://www.microsoft.com/technet/security/bulletin/ms99-038.mspx"/>
+	</reference>
+
+
+
+
+	<reference anchor="NISCC2004">
+		<front>
+			<title>NISCC Vulnerability Advisory 236929: Vulnerability Issues in TCP</title>
+			<author initials="" surname="NISCC" fullname="National Infrastructure Security Co-ordination Centre">
+				<organization></organization>
+			</author>
+			<date year="2004"/>
+		</front>
+		<seriesInfo name="" value="http://www.uniras.gov.uk/niscc/docs/re-20040420-00391.pdf"/>
+	</reference>
+
+
+
+	<reference anchor="NISCC2005">
+		<front>
+			<title>NISCC Vulnerability Advisory 532967/NISCC/ICMP: Vulnerability Issues in ICMP packets with TCP payloads</title>
+			<author initials="" surname="NISCC" fullname="National Infrastructure Security Co-ordination Centre">
+				<organization></organization>
+			</author>
+			<date year="2005"/>
+		</front>
+		<seriesInfo name="" value="http://www.niscc.gov.uk/niscc/docs/re-20050412-00303.pdf"/>
+	</reference>
+
+	<reference anchor="NISCC2006">
+		<front>
+			<title>NISCC Technical Note 01/2006: Egress and Ingress Filtering</title>
+			<author initials="" surname="NISCC" fullname="National Infrastructure Security Co-ordination Centre">
+				<organization></organization>
+			</author>
+			<date year="2006"/>
+		</front>
+		<seriesInfo name="" value="http://www.niscc.gov.uk/niscc/docs/re-20060420-00294.pdf?lang=en"/>
+	</reference>
+
+	<reference anchor="CPNI2008">
+		<front>
+			<title>Security Assessment of the Internet Protocol</title>
+			<author initials="F." surname="Gont" fullname="Fernando Gont">
+				<organization>Centre for the Protection of National Infrastructure</organization>
+			</author>
+			<date year="2008"/>
+		</front>
+		<seriesInfo name="" value="http://www.cpni.gov.uk/Docs/InternetProtocol.pdf"/>
+	</reference>
+
+	<reference anchor="Northcutt2000">
+		<front>
+			<title>Network Intrusion Detection - An Analyst's Handbook</title>
+			<author initials="S." surname="Northcut" fullname="Stephen Northcutt">
+				<organization></organization>
+			</author>
+			<author initials="" surname="Novak" fullname="J. Novak">
+				<organization></organization>
+			</author>
+
+			<date year="2000"/>
+		</front>
+		<seriesInfo name="Second Edition" value="New Riders Publishing"/>
+	</reference>
+
+	<reference anchor="Novak2005">
+		<front>
+			<title>Target-Based Fragmentation Reassembly</title>
+			<author initials="" surname="Novak" fullname="J. Novak">
+				<organization></organization>
+			</author>
+			<date year="2005"/>
+		</front>
+		<seriesInfo name="" value="http://www.snort.org/reg/docs/target_based_frag.pdf"/>
+	</reference>
+
+
+	<reference anchor="OpenBSD1998">
+		<front>
+			<title>OpenBSD Security Advisory: IP Source Routing Problem</title>
+			<author initials="" surname="OpenBSD" fullname="OpenBSD">
+				<organization></organization>
+			</author>
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="" value="http://www.openbsd.org/advisories/sourceroute.txt"/>
+	</reference>
+
+
+	<reference anchor="Paxson2001">
+		<front>
+			<title>Network Intrusion Detection: Evasion, Traffic Normalization, and End-to-End Protocol Semantics</title>
+			<author initials="V." surname="Paxson" fullname="V. Paxson">
+				<organization></organization>
+			</author>
+			<author initials="M." surname="Handley" fullname="M. Handley">
+				<organization></organization>
+			</author>
+			<author initials="C." surname="Kreibich" fullname="C. Kreibich">
+				<organization></organization>
+			</author>
+
+			<date year="2001"/>
+		</front>
+		<seriesInfo name="" value="USENIX Conference, 2001"/>
+	</reference>
+
+
+
+	<reference anchor="Ptacek1998">
+		<front>
+			<title>Insertion, Evasion and Denial of Service: Eluding Network Intrusion Detection</title>
+			<author initials="T. H." surname="Ptacek" fullname="T. H. Ptacek">
+				<organization>Secure Networks, Inc.</organization>
+			</author>
+			<author initials="T. N." surname="Newsham" fullname="T. N. Newsham">
+				<organization>Secure Networks, Inc.</organization>
+			</author>
+
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="" value="http://www.aciri.org/vern/Ptacek-Newsham-Evasion-98.ps"/>
+	</reference>
+
+	<reference anchor="Sanfilippo1998a">
+		<front>
+			<title>about the ip header id</title>
+			<author initials="S." surname="Sanfilippo" fullname="S. Sanfilippo">
+				<organization></organization>
+			</author>
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="Post to Bugtraq mailing-list, Mon Dec 14 1998" value="http://www.kyuzz.org/antirez/papers/ipid.html"/>
+	</reference>
+
+	<reference anchor="Sanfilippo1998b">
+		<front>
+			<title>Idle scan</title>
+			<author initials="S." surname="Sanfilippo" fullname="S. Sanfilippo">
+				<organization></organization>
+			</author>
+			<date year="1998"/>
+		</front>
+		<seriesInfo name="Post to Bugtraq mailing-list" value="http://www.kyuzz.org/antirez/papers/dumbscan.html"/>
+	</reference>
+
+	<reference anchor="Sanfilippo1999">
+		<front>
+			<title>more ip id</title>
+			<author initials="S." surname="Sanfilippo" fullname="S. Sanfilippo">
+				<organization></organization>
+			</author>
+			<date year="1999"/>
+		</front>
+		<seriesInfo name="Post to Bugtraq mailing-list" value="http://www.kyuzz.org/antirez/papers/moreipid.html"/>
+	</reference>
+
+	<reference anchor="OpenBSD-PF">
+		<front>
+			<title>PF: Scrub (Packet Normalization)</title>
+			<author initials="S." surname="Sanfilippo" fullname="S. Sanfilippo">
+				<organization></organization>
+			</author>
+			<date year="2010"/>
+		</front>
+		<seriesInfo name="" value="http://www.openbsd.org/faq/pf/scrub.html"/>
+	</reference>
+
+
+	<reference anchor="SELinux2008">
+		<front>
+			<title>http://www.nsa.gov/selinux/</title>
+			<author initials="" surname="Security Enhanced Linux" fullname="Security Enhanced Linux">
+				<organization></organization>
+			</author>
+			<date year=""/>
+		</front>
+	</reference>
+
+
+	<reference anchor="Shankar2003">
+		<front>
+			<title>Active Mapping: Resisting NIDS Evasion Without Altering Traffic</title>
+			<author initials="U." surname="Shankar" fullname="U. Shankar">
+				<organization></organization>
+			</author>
+			<author initials="V." surname="Paxson" fullname="V. Paxson">
+				<organization></organization>
+			</author>
+			<date year="2003"/>
+		</front>
+		<seriesInfo name="" value="http://www.icir.org/vern/papers/activemap-oak03.pdf"/>
+	</reference>
+
+
+
+	<reference anchor="Shannon2001">
+		<front>
+			<title>Characteristics of Fragmented IP Traffic on Internet Links</title>
+			<author initials="C." surname="Shannon" fullname="C. Shannon">
+				<organization></organization>
+			</author>
+			<author initials="D." surname="Moore" fullname="D. Moore">
+				<organization></organization>
+			</author>
+			<author initials="K.C." surname="Claffy" fullname="K.C. Claffy">
+				<organization></organization>
+			</author>
+
+			<date year="2001"/>
+		</front>
+	</reference>
+
+
+
+
+	<reference anchor="Silbersack2005">
+		<front>
+			<title>Improving TCP/IP security through randomization without sacrificing interoperability</title>
+			<author initials="M.J." surname="Silbersack" fullname="M. J. Silbersack">
+				<organization></organization>
+			</author>
+			<date year="2005"/>
+		</front>
+		<seriesInfo name="EuroBSDCon 2005 Conference" value="http://www.silby.com/eurobsdcon05/eurobsdcon_slides.pdf"/>
+	</reference>
+
+
+	<reference anchor="Solaris2008">
+		<front>
+			<title>http://www.sun.com/software/solaris/ds/trusted_extensions.jsp#3</title>
+			<author initials="" surname="Solaris Trusted Extensions - Labeled Security for Absolute Protection" fullname="Solaris Trusted Extensions - Labeled Security for Absolute Protection">
+				<organization></organization>
+			</author>
+			<date year="2008"/>
+		</front>
+	</reference>
+
+	<reference anchor="Song1999">
+		<front>
+			<title>Frag router tool</title>
+			<author initials="D. S." surname="Song" fullname="D. Song">
+				<organization></organization>
+			</author>
+			<date year=""/>
+		</front>
+		<seriesInfo name="" value="http://www.anzen.com/research/nidsbench/"/>
+	</reference>
+
+
+	<reference anchor="US-CERT2001">
+		<front>
+			<title>US-CERT Vulnerability Note VU#446689: Check Point FireWall-1 allows fragmented packets through firewall if Fast Mode is enabled</title>
+			<author initials="" surname="US-CERT" fullname="US-CERT">
+				<organization></organization>
+			</author>
+			<date year="2001"/>
+		</front>
+		<seriesInfo name="" value="http://www.kb.cert.org/vuls/id/446689"/>
+	</reference>
+
+
+	<reference anchor="US-CERT2002">
+		<front>
+			<title>US-CERT Vulnerability Note VU#310387: Cisco IOS discloses fragments of previous packets when Express Forwarding is enabled</title>
+			<author initials="" surname="US-CERT" fullname="US-CERT">
+				<organization></organization>
+			</author>
+			<date year="2002"/>
+		</front>
+		<seriesInfo name="" value="http://www.kb.cert.org/vuls/id/310387"/>
+	</reference>
+
+	<reference anchor="Zakrzewski2002">
+		<front>
+			<title>Linux Distributed Security Module</title>
+			<author initials="M." surname="Zakrzewski" fullname= "M. Zakrzewski">
+				<organization></organization>
+			</author>
+			<author initials="I." surname="Haddad" fullname= "I. Haddad">
+				<organization></organization>
+			</author>
+			<date year="2002"/>
+		</front>
+		<seriesInfo name="" value="http://www.linuxjournal.com/article/6215"/>
+	</reference>
+
+
+</references>
+
+
+<section title="Changes from previous versions of the draft (to be removed by the RFC Editor before publishing this document as an RFC)" anchor="changes">
+
+
+</section>
+
+</back>
+</rfc>
